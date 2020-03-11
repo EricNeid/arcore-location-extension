@@ -21,7 +21,7 @@ class LocationNode(
 		val locationScene: CustomLocationScene
 ) : AnchorNode(anchor) {
 
-	var renderEventListenerEvent: RenderEventListener? = null
+	var renderEventListener: RenderEventListener? = null
 	var distance = 0
 	var distanceInAR = 0.0
 	var scaleModifier = 1f
@@ -70,7 +70,7 @@ class LocationNode(
 			scaleAndRotate()
 		}
 
-		renderEventListenerEvent?.let {
+		renderEventListener?.let {
 			if (isTracking && isActive && isEnabled) {
 				it.onRender(this)
 			}
