@@ -16,7 +16,7 @@ import kotlin.math.sin
 
 private const val RENDER_DISTANCE = 25f
 
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate", "unused")
 class LocationScene(val arSceneView: ArSceneView) {
 
 	private  val tag = LocationScene::class.java.simpleName
@@ -42,11 +42,6 @@ class LocationScene(val arSceneView: ArSceneView) {
 			field = value
 			anchorsNeedRefresh = true
 		}
-
-	/**
-	 * [locationMarkers] contains all markers currently added to the scene.
-	 */
-	var locationMarkers = ArrayList<LocationMarker>()
 
 	var distanceLimit = 30
 
@@ -75,6 +70,11 @@ class LocationScene(val arSceneView: ArSceneView) {
 
 	private var anchorsNeedRefresh = true
 
+	/**
+	 * [locationMarkers] contains all markers currently added to the scene.
+	 */
+	private val locationMarkers = ArrayList<LocationMarker>()
+
 	private val handler = Handler()
 	private val anchorRefreshTask: Runnable = object : Runnable {
 		override fun run() {
@@ -93,6 +93,25 @@ class LocationScene(val arSceneView: ArSceneView) {
 
 	init {
 		startCalculationTask()
+	}
+
+	fun addMarker(locationMarker: LocationMarker) {
+		locationMarkers.add(locationMarker)
+	}
+
+	fun removeMarker(locationMarker: LocationMarker) {
+		if (!locationMarkers.contains(locationMarker)) {
+			Log.i(tag, "locationMarker was not found in list of rendered markes")
+			return
+		}
+
+		locationMarker.anchorNode?.apply {
+			anchor?.detach()
+			isEnabled = false
+		}
+		locationMarker.anchorNode = null
+
+		locationMarkers.remove(locationMarker)
 	}
 
 	fun clearMarkers() {
@@ -229,7 +248,6 @@ class LocationScene(val arSceneView: ArSceneView) {
 
 	fun onBearingChanged(bearing: Float) {
 		this.bearing = bearing
-		// TODO investigate
 	}
 
 }
