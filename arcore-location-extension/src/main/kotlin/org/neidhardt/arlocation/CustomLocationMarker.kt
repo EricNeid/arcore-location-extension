@@ -10,7 +10,7 @@ class CustomLocationMarker(
 	var node: Node
 ) {
 	// Location in AR terms
-	var anchorNode: CustomLocationNode? = null
+	var anchorNode: LocationNode? = null
 	/**
 	 * Called on each frame
 	 *
@@ -20,7 +20,7 @@ class CustomLocationMarker(
 	 * Called on each frame.
 	 */
 	// Called on each frame if not null
-	var renderEvent: CustomLocationNodeRender? = null
+	var renderEventListenerEvent: RenderEventListener? = null
 	/**
 	 * Scale multiplier
 	 *

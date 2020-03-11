@@ -8,9 +8,6 @@ import com.google.ar.core.Pose
 import com.google.ar.core.Session
 import com.google.ar.sceneform.ArSceneView
 import com.google.ar.sceneform.math.Vector3
-import org.neidhardt.arlocation.CustomDeviceLocation
-import org.neidhardt.arlocation.CustomLocationMarker
-import org.neidhardt.arlocation.CustomLocationNode
 import uk.co.appoly.arcorelocation.sensor.DeviceLocationChanged
 import uk.co.appoly.arcorelocation.sensor.DeviceOrientation
 import uk.co.appoly.arcorelocation.utils.LocationUtils
@@ -259,13 +256,13 @@ open class CustomLocationScene(var context: Activity, mArSceneView: ArSceneView)
 						.compose(translation)
 						.extractTranslation()
 				)
-				marker.anchorNode = CustomLocationNode(newAnchor, marker, this)
+				marker.anchorNode = LocationNode(newAnchor, marker, this)
 				marker.anchorNode!!.scalingMode = CustomLocationMarker.ScalingMode.NO_SCALING
 				marker.anchorNode!!.setParent(mArSceneView.scene)
 				marker.anchorNode!!.addChild(mLocationMarkers[i].node)
 				marker.node.localPosition = Vector3.zero()
-				if (marker.renderEvent != null) {
-					marker.anchorNode!!.renderEvent = marker.renderEvent
+				if (marker.renderEventListenerEvent != null) {
+					marker.anchorNode!!.renderEventListenerEvent = marker.renderEventListenerEvent
 				}
 				marker.anchorNode!!.scaleModifier = marker.scaleModifier
 				marker.anchorNode!!.scalingMode = marker.scalingMode
