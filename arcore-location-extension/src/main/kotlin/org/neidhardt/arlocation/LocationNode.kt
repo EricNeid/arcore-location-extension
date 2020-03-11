@@ -17,18 +17,21 @@ import kotlin.math.sqrt
 @Suppress("MemberVisibilityCanBePrivate")
 class LocationNode(
 		anchor: Anchor,
-		val locationMarker: CustomLocationMarker,
+		val locationMarker: LocationMarker,
 		val locationScene: CustomLocationScene
 ) : AnchorNode(anchor) {
 
 	var renderEventListener: RenderEventListener? = null
+
 	var distance = 0
 	var distanceInAR = 0.0
-	var scaleModifier = 1f
+
 	var height = 0f
+
+	var scaleModifier = 1f
 	var gradualScalingMinScale = 0.8f
 	var gradualScalingMaxScale = 1.4f
-	var scalingMode = CustomLocationMarker.ScalingMode.FIXED_SIZE_ON_SCREEN
+	var scalingMode = LocationMarker.ScalingMode.FIXED_SIZE_ON_SCREEN
 
 	override fun onUpdate(frameTime: FrameTime) {
 
@@ -125,24 +128,24 @@ class LocationNode(
 
 					var scale = 1f
 					when (scalingMode) {
-						CustomLocationMarker.ScalingMode.FIXED_SIZE_ON_SCREEN -> {
+						LocationMarker.ScalingMode.FIXED_SIZE_ON_SCREEN -> {
 							scale =
 									sqrt(direction.x * direction.x + direction.y * direction.y + (direction.z * direction.z).toDouble()).toFloat()
 						}
-						CustomLocationMarker.ScalingMode.GRADUAL_TO_MAX_RENDER_DISTANCE -> {
+						LocationMarker.ScalingMode.GRADUAL_TO_MAX_RENDER_DISTANCE -> {
 							val scaleDifference =
 									gradualScalingMaxScale - gradualScalingMinScale
 							scale =
 									(gradualScalingMinScale + (locationScene.distanceLimit - markerDistance) * (scaleDifference / locationScene.distanceLimit)) * renderDistance
 						}
-						CustomLocationMarker.ScalingMode.GRADUAL_FIXED_SIZE -> {
+						LocationMarker.ScalingMode.GRADUAL_FIXED_SIZE -> {
 							scale =
 									sqrt(direction.x * direction.x + direction.y * direction.y + (direction.z * direction.z).toDouble()).toFloat()
 							var gradualScale = gradualScalingMaxScale - gradualScalingMinScale
 							gradualScale = gradualScalingMaxScale - gradualScale / renderDistance * markerDistance
 							scale *= gradualScale.coerceAtLeast(gradualScalingMinScale)
 						}
-						CustomLocationMarker.ScalingMode.NO_SCALING -> {
+						LocationMarker.ScalingMode.NO_SCALING -> {
 							scale = 1f
 						}
 					}

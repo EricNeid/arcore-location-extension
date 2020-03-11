@@ -23,7 +23,7 @@ open class CustomLocationScene(var context: Activity, mArSceneView: ArSceneView)
 	var mArSceneView: ArSceneView
 	var deviceLocation: CustomDeviceLocation?
 	var deviceOrientation: DeviceOrientation
-	var mLocationMarkers = ArrayList<CustomLocationMarker>()
+	var mLocationMarkers = ArrayList<LocationMarker>()
 	// Anchors are currently re-drawn on an interval. There are likely better
 // ways of doing this, however it's sufficient for now.
 	private var anchorRefreshInterval = 1000 * 5 // 5 seconds
@@ -257,12 +257,12 @@ open class CustomLocationScene(var context: Activity, mArSceneView: ArSceneView)
 						.extractTranslation()
 				)
 				marker.anchorNode = LocationNode(newAnchor, marker, this)
-				marker.anchorNode!!.scalingMode = CustomLocationMarker.ScalingMode.NO_SCALING
+				marker.anchorNode!!.scalingMode = LocationMarker.ScalingMode.NO_SCALING
 				marker.anchorNode!!.setParent(mArSceneView.scene)
 				marker.anchorNode!!.addChild(mLocationMarkers[i].node)
 				marker.node.localPosition = Vector3.zero()
-				if (marker.renderEventListenerEvent != null) {
-					marker.anchorNode!!.renderEventListenerEvent = marker.renderEventListenerEvent
+				if (marker.renderEventListener != null) {
+					marker.anchorNode!!.renderEventListener = marker.renderEventListener
 				}
 				marker.anchorNode!!.scaleModifier = marker.scaleModifier
 				marker.anchorNode!!.scalingMode = marker.scalingMode
