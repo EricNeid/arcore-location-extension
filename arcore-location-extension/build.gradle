@@ -85,13 +85,9 @@ dependencies {
 	// ar core
 	implementation "com.google.ar.sceneform:core:1.7.0"
 	implementation "com.google.ar.sceneform.ux:sceneform-ux:1.7.0"
-	implementation 'com.github.appoly:ARCore-Location:1.2' // remove this later
 
 	// android support
 	implementation "com.android.support:support-annotations:$androidSupportLibVersion"
-
-	// google play services
-	implementation 'com.google.android.gms:play-services-location:16.0.0'
 
 	// testing
 	testImplementation 'junit:junit:4.13'

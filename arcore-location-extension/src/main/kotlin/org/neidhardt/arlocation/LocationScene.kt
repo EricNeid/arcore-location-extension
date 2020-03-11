@@ -7,12 +7,8 @@ import com.google.ar.core.Frame
 import com.google.ar.core.Pose
 import com.google.ar.sceneform.ArSceneView
 import com.google.ar.sceneform.math.Vector3
-import uk.co.appoly.arcorelocation.utils.LocationUtils
 import java.util.*
-import kotlin.math.cos
-import kotlin.math.floor
-import kotlin.math.roundToInt
-import kotlin.math.sin
+import kotlin.math.*
 
 private const val RENDER_DISTANCE = 25f
 
@@ -141,10 +137,10 @@ class LocationScene(val arSceneView: ArSceneView) {
 
 		for (marker in locationMarkers) {
 
-			val markerDistance = LocationUtils.distance(
+			val markerDistance = distance(
 					marker.latitude,
-					location.latitude,
 					marker.longitude,
+					location.latitude,
 					location.longitude, 0.0, 0.0
 			).roundToInt()
 
@@ -153,7 +149,7 @@ class LocationScene(val arSceneView: ArSceneView) {
 				continue
 			}
 
-			val bearing = LocationUtils.bearing(
+			val bearing = bearing(
 					location.latitude,
 					location.longitude,
 					marker.latitude,
@@ -249,5 +245,32 @@ class LocationScene(val arSceneView: ArSceneView) {
 	fun onBearingChanged(bearing: Float) {
 		this.bearing = bearing
 	}
+}
 
+internal fun bearing(srcLat: Double, srcLon: Double, dstLat: Double, dstLon: Double): Double {
+	val latitude1 = Math.toRadians(srcLat)
+	val latitude2 = Math.toRadians(dstLat)
+	val longDiff = Math.toRadians(dstLon - srcLon)
+	val y = sin(longDiff) * cos(latitude2)
+	val x = cos(latitude1) * sin(latitude2) - sin(latitude1) * cos(latitude2) * cos(longDiff)
+	return (Math.toDegrees(atan2(y, x)) + 360) % 360
+}
+
+private const val R = 6371 // Radius of the earth
+
+internal fun distance(
+		lat1: Double, lon1: Double,
+		lat2: Double, lon2: Double,
+		el1: Double, el2: Double
+): Double {
+	val latDistance = Math.toRadians(lat2 - lat1)
+	val lonDistance = Math.toRadians(lon2 - lon1)
+	val a = (sin(latDistance / 2) * sin(latDistance / 2)
+			+ (cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2))
+			* sin(lonDistance / 2) * sin(lonDistance / 2)))
+	val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+	var distance = R * c * 1000 // convert to meters
+	val height = el1 - el2
+	distance = distance.pow(2.0) + height.pow(2.0)
+	return sqrt(distance)
 }
