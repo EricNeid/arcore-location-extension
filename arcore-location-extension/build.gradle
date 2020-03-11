@@ -1,4 +1,4 @@
-def appVersionName = '0.2.0-snapshot-2'
+def appVersionName = '0.2.0-snapshot-3'
 def appVersionCode = 1
 def publishedGroupId = 'org.neidhardt'
 def appPackageName = 'arcore-location-extension'
@@ -83,8 +83,8 @@ dependencies {
 	implementation fileTree(dir: 'libs', include: ['*.jar'])
 
 	// ar core
-	implementation "com.google.ar.sceneform:core:1.7.0"
-	implementation "com.google.ar.sceneform.ux:sceneform-ux:1.7.0"
+	implementation "com.google.ar.sceneform:core:1.15.0"
+	implementation "com.google.ar.sceneform.ux:sceneform-ux:1.15.0"
 
 	// android support
 	implementation "com.android.support:support-annotations:$androidSupportLibVersion"

@@ -8,7 +8,6 @@ import com.google.ar.sceneform.Node
 import com.google.ar.sceneform.collision.Ray
 import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.Vector3
-import uk.co.appoly.arcorelocation.utils.LocationUtils
 import kotlin.math.ceil
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -112,10 +111,10 @@ class LocationNode(
 		scene?.let { scene ->
 			children.forEach { n ->
 				val markerDistance = ceil(
-						LocationUtils.distance(
+						distance(
 								locationMarker.latitude,
-								location.latitude,
 								locationMarker.longitude,
+								location.latitude,
 								location.longitude,
 								0.0, 0.0
 						)
