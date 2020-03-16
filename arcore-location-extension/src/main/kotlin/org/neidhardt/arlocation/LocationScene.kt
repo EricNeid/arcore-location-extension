@@ -54,7 +54,7 @@ class LocationScene(val arSceneView: ArSceneView) {
 			field = value
 		}
 
-	var anchorRefreshInterval = 1000 * 5 // 5 seconds
+	var anchorRefreshIntervalSec = 1000 * 5L // 5 seconds
 		set(value) {
 			field = value
 			stopCalculationTask()
@@ -75,7 +75,7 @@ class LocationScene(val arSceneView: ArSceneView) {
 	private val anchorRefreshTask: Runnable = object : Runnable {
 		override fun run() {
 			anchorsNeedRefresh = true
-			handler.postDelayed(this, anchorRefreshInterval.toLong())
+			handler.postDelayed(this, anchorRefreshIntervalSec)
 		}
 	}
 

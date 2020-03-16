@@ -123,7 +123,9 @@ class LocationNode(
 
 				// limit the distance of the Anchor within the scene.
 				var renderDistance = markerDistance
-				if (renderDistance > locationScene.distanceLimit) renderDistance = locationScene.distanceLimit
+				if (renderDistance > locationScene.distanceLimit) {
+					renderDistance = locationScene.distanceLimit
+				}
 				val cameraPosition = scene.camera.worldPosition
 				val direction = Vector3.subtract(cameraPosition, n.worldPosition)
 
