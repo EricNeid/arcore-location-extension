@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 * Renamed anchorRefreshInterval -> anchorRefreshIntervalSec
+* LocationMarker: changed order of arguments lng,lat -> lat,lng
 
 ## v0.2.0 - 2020-03-11
 ### Added

@@ -4,8 +4,8 @@ import com.google.ar.sceneform.Node
 
 
 class LocationMarker(
-	var longitude: Double,
 	var latitude: Double,
+	var longitude: Double,
 	var node: Node
 ) {
 
