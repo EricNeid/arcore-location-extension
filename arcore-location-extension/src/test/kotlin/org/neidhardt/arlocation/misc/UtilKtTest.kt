@@ -1,14 +1,14 @@
-package org.neidhardt.arlocation
+package org.neidhardt.arlocation.misc
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class LocationSceneKtTest {
+class UtilKtTest {
 
 	@Test
 	fun bearing() {
 		// action
-		val result = bearing(
+		val result = getBearing(
 				52.511414, 13.507132,
 				54.799974, 13.507132
 		)
@@ -19,7 +19,7 @@ class LocationSceneKtTest {
 	@Test
 	fun bearing_shouldReturn31() {
 		// action
-		val result: Double = bearing(
+		val result: Double = getBearing(
 				52.511414, 13.507132,
 				52.512414, 13.508132
 		)
@@ -30,7 +30,7 @@ class LocationSceneKtTest {
 	@Test
 	fun bearing_shouldReturn90() {
 		// action
-		val result: Double = bearing(
+		val result: Double = getBearing(
 				52.511414, 13.507132,
 				52.511414, 15.507132
 		)
@@ -41,7 +41,7 @@ class LocationSceneKtTest {
 	@Test
 	fun bearing_shouldReturn180() {
 		// action
-		val result: Double = bearing(
+		val result: Double = getBearing(
 				52.511414, 13.507132,
 				48.799974, 13.507132
 		)
@@ -51,7 +51,7 @@ class LocationSceneKtTest {
 
 	@Test
 	fun distance() { // action
-		val result: Double = distance(
+		val result: Double = getDistance(
 				52.589738, 11.172685,
 				52.591484, 11.238992,
 				0.0, 0.0

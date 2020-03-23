@@ -82,6 +82,9 @@ repositories {
 dependencies {
 	implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+	// kotlin
+	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
 	// ar core
 	implementation "com.google.ar.sceneform:core:1.15.0"
 	implementation "com.google.ar.sceneform.ux:sceneform-ux:1.15.0"
@@ -90,13 +93,20 @@ dependencies {
 	implementation "com.android.support:support-annotations:$androidSupportLibVersion"
 
 	// testing
-	testImplementation 'junit:junit:4.13'
-	testImplementation 'android.arch.core:core-testing:1.1.1'
+	// core library
+	testImplementation 'androidx.test:core:1.2.0'
+	testImplementation 'androidx.arch.core:core-testing:2.1.0'
+
+	// androidJUnitRunner and JUnit Rules
+	testImplementation 'androidx.test:runner:1.2.0'
+	testImplementation 'androidx.test:rules:1.2.0'
+
+	// assertions
+	testImplementation 'androidx.test.ext:junit:1.1.1'
+
+	// mockito
 	testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
 
-	androidTestImplementation "androidx.test:runner:$androidxTestVersion"
-	androidTestImplementation "androidx.test:rules:$androidxTestVersion"
-	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
 apply plugin: 'com.github.dcendents.android-maven'
