@@ -1,6 +1,5 @@
 package org.neidhardt.arlocation
 
-import android.location.Location
 import com.google.ar.sceneform.ArSceneView
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertEquals
@@ -23,8 +22,8 @@ class LocationArSceneTest {
 	@Test
 	fun onLocationChanged() {
 		// arrange
-		val testData1 = mock<Location> {  }
-		val testData2 = mock<Location> {  }
+		val testData1 = mock<ArLocation> {  }
+		val testData2 = mock<ArLocation> {  }
 		// action
 		unit.onLocationChanged(testData1)
 		unit.onLocationChanged(testData2)

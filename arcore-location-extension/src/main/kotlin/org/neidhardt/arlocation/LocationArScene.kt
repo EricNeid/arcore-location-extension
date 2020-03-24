@@ -1,15 +1,13 @@
 package org.neidhardt.arlocation
 
-import android.location.Location
 import android.util.Log
 import com.google.ar.core.Frame
 import com.google.ar.core.Pose
 import com.google.ar.core.Session
 import com.google.ar.core.TrackingState
 import com.google.ar.sceneform.ArSceneView
-import org.neidhardt.arlocation.misc.CartesianTuple
 import org.neidhardt.arlocation.misc.calculateCartesianCoordinates
-import org.neidhardt.arlocation.misc.getBearing
+import org.neidhardt.arlocation.misc.geodeticCurve
 import org.neidhardt.arlocation.misc.getDistance
 import java.util.*
 
@@ -24,13 +22,13 @@ class LocationArScene(val arSceneView: ArSceneView) {
 	/**
 	 * [previousLocation] represents the previous location of the user.
 	 */
-	var previousLocation: Location? = null
+	var previousLocation: ArLocation? = null
 		private set
 
 	/**
 	 * [currentLocation] represents the current position of the user.
 	 */
-	var currentLocation: Location? = null
+	var currentLocation: ArLocation? = null
 		private set
 
 	/**
@@ -48,9 +46,15 @@ class LocationArScene(val arSceneView: ArSceneView) {
 		private set
 
 	/**
-	 * [trackingState] represents the current state of the ar scene.
+	 * [previousTrackingState] represents the previous state of the ar scene.
 	 */
-	var trackingState: TrackingState? = null
+	var previousTrackingState: TrackingState? = null
+		private set
+
+	/**
+	 * [currentTrackingState] represents the current state of the ar scene.
+	 */
+	var currentTrackingState: TrackingState? = null
 		private set
 
 	/**
@@ -81,7 +85,7 @@ class LocationArScene(val arSceneView: ArSceneView) {
 		locationMarkers.clear()
 	}
 
-	fun onLocationChanged(newLocation: Location) {
+	fun onLocationChanged(newLocation: ArLocation) {
 		previousLocation = currentLocation
 		currentLocation = newLocation
 
@@ -105,39 +109,45 @@ class LocationArScene(val arSceneView: ArSceneView) {
 	fun onBearingChanged(newBearing: Float) {
 		previousBearing = currentBearing
 		currentBearing = newBearing
-		refreshSceneIfReady()
+		// first available bearing
+		if (previousBearing == null) {
+			refreshSceneIfReady()
+		}
 	}
 
 	fun onSceneUpdate(frame: Frame) {
-		trackingState = frame.camera.trackingState
-		refreshSceneIfReady()
+		previousTrackingState = currentTrackingState
+		currentTrackingState = frame.camera.trackingState
+		if (previousTrackingState != currentTrackingState) {
+			refreshSceneIfReady()
+		}
 	}
 
 	private fun refreshSceneIfReady() {
-		if (trackingState != TrackingState.TRACKING) {
-			return
-		}
+		Log.i(tag, "refreshSceneIfReady")
 
+		val trackingState = currentTrackingState ?: return
 		val location = currentLocation ?: return
 		val bearing = currentBearing ?: return
 		val session = arSceneView.session ?: return
 
+		if (trackingState != TrackingState.TRACKING) {
+			return
+		}
+
+		Log.i(tag, "refreshSceneIfReady $trackingState, $location, $bearing")
+
 		for (marker in locationMarkers) {
 
-			val distance = getDistance(
-					marker.latitude,
-					marker.longitude,
-					location.latitude,
-					location.longitude,
-					0.0, 0.0
-			)
-
-			val bearingToMarker = getBearing(
+			val curve = geodeticCurve(
 					location.latitude,
 					location.longitude,
 					marker.latitude,
 					marker.longitude
 			)
+
+			val distance = curve.ellipsoidalDistance
+			val bearingToMarker = curve.azimuth
 
 			if (distance > marker.onlyRenderWhenWithin) {
 				Log.i(tag, "Not rendering. Marker distance: $distance Max render distance: ${marker.onlyRenderWhenWithin}")
@@ -159,7 +169,13 @@ class LocationArScene(val arSceneView: ArSceneView) {
 			val height = marker.height
 
 			detachMarker(marker)
-			attachMarker(marker, session, positionRelativeToUser, height)
+			attachMarker(
+					marker,
+					session,
+					positionRelativeToUser.x.toFloat(),
+					positionRelativeToUser.y.toFloat(),
+					height
+			)
 		}
 	}
 
@@ -174,13 +190,14 @@ class LocationArScene(val arSceneView: ArSceneView) {
 	private fun attachMarker(
 			marker: LocationArMarker,
 			session: Session,
-			positionRelativeToUser: CartesianTuple,
+			dX: Float,
+			dY: Float,
 			height: Float
 	) {
 		val pos = floatArrayOf(
-				positionRelativeToUser.x.toFloat(),
+				dX,
 				-1.5f,
-				-1f * positionRelativeToUser.y.toFloat()
+				-1f * dY
 		)
 		val rotation = floatArrayOf(0f, 0f, 0f, 1f)
 		val newAnchor = session.createAnchor(Pose(pos, rotation))
