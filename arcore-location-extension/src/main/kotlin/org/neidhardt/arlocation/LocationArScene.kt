@@ -5,8 +5,10 @@ import android.util.Log
 import com.google.ar.core.Frame
 import com.google.ar.core.TrackingState
 import com.google.ar.sceneform.ArSceneView
+import org.neidhardt.arlocation.misc.calculateCartesianCoordinates
+import org.neidhardt.arlocation.misc.getBearing
 import org.neidhardt.arlocation.misc.getDistance
-import java.util.ArrayList
+import java.util.*
 
 private const val LOCATION_CHANGED_THRESHOLD_M = 5
 
@@ -48,35 +50,32 @@ class LocationArScene(val arSceneView: ArSceneView) {
 	var trackingState: TrackingState? = null
 		private set
 
-	fun addMarker(locationMarker: LocationMarker) {
-		locationMarkers.add(locationMarker)
+	/**
+	 * [maxRenderDistance] a maximum distance for the rendered markers. If the distance of a marker is
+	 * larger than [maxRenderDistance], it's distance is reduced to [maxRenderDistance]. This prevents
+	 * render issues with far off markers.
+	 */
+	var maxRenderDistance = 30.0
+
+	fun addMarker(marker: LocationMarker) {
+		locationMarkers.add(marker)
 		refreshSceneIfReady()
 	}
 
-	fun removeMarker(locationMarker: LocationMarker) {
-		if (!locationMarkers.contains(locationMarker)) {
+	fun removeMarker(marker: LocationMarker) {
+		if (!locationMarkers.contains(marker)) {
 			Log.i(tag, "locationMarker was not found in list of rendered marker")
 			return
 		}
-		locationMarker.anchorNode?.apply {
-			anchor?.detach()
-			isEnabled = false
-		}
-		locationMarker.anchorNode = null
-		locationMarkers.remove(locationMarker)
-		refreshSceneIfReady()
+		detachMarker(marker)
+		locationMarkers.remove(marker)
 	}
 
 	fun clearMarkers() {
-		locationMarkers.forEach { marker ->
-			marker.anchorNode?.apply {
-				anchor?.detach()
-				isEnabled = false
-			}
-			marker.anchorNode = null
+		locationMarkers.forEach {
+			detachMarker(it)
 		}
 		locationMarkers.clear()
-		refreshSceneIfReady()
 	}
 
 	fun onLocationChanged(newLocation: Location) {
@@ -115,7 +114,57 @@ class LocationArScene(val arSceneView: ArSceneView) {
 		if (trackingState != TrackingState.TRACKING) {
 			return
 		}
-		// TODO
+
+		val location = currentLocation ?: return
+		val bearing = currentBearing ?: return
+		val session = arSceneView.session ?: return
+
+		for (marker in locationMarkers) {
+
+			val distance = getDistance(
+					marker.latitude,
+					marker.longitude,
+					location.latitude,
+					location.longitude,
+					0.0, 0.0
+			)
+
+			val bearingToMarker = getBearing(
+					location.latitude,
+					location.longitude,
+					marker.latitude,
+					marker.longitude
+			)
+
+			if (distance > marker.onlyRenderWhenWithin) {
+				Log.i(tag, "Not rendering. Marker distance: $distance Max render distance: ${marker.onlyRenderWhenWithin}")
+				continue
+			}
+
+			var renderDistance = distance
+
+			// limit the distance of the Anchor within the scene, to prevent rendering issues
+			if (renderDistance > maxRenderDistance) {
+				renderDistance = maxRenderDistance
+			}
+
+
+
+
+			val positionRelativeToUser = calculateCartesianCoordinates(
+					r = renderDistance,
+					azimuth = (bearingToMarker - bearing).toFloat()
+			)
+
+
+		}
 	}
 
+	private fun detachMarker(marker: LocationMarker) {
+		marker.anchorNode?.apply {
+			anchor?.detach()
+			isEnabled = false
+		}
+		marker.anchorNode = null
+	}
 }

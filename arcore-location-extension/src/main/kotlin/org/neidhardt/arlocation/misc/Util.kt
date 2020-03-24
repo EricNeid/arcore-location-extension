@@ -29,3 +29,16 @@ fun getDistance(
 	distance = distance.pow(2.0) + height.pow(2.0)
 	return sqrt(distance)
 }
+
+fun calculateCartesianCoordinates(r: Double, azimuth: Float): CartesianTuple {
+	val x = cos((90 - azimuth).toRadians())
+	val y = sin((90 - azimuth).toRadians())
+
+	return CartesianTuple(r * x, r * y)
+}
+
+data class CartesianTuple(val x: Double, val y: Double)
+
+private fun Float.toRadians(): Double {
+	return Math.toRadians(this.toDouble())
+}

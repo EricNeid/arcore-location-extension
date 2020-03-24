@@ -59,4 +59,21 @@ class UtilKtTest {
 		// verify
 		assertEquals(4497.859, result, 15.0)
 	}
+
+	@Test
+	fun calculateCartesianCoordinates() {
+		// action
+		val result1 = calculateCartesianCoordinates(2.0, 0f)
+		// verify
+		// that result is directly in front of user
+		assertEquals(0.0, result1.x, 0.1)
+		assertEquals(2.0, result1.y, 0.1)
+
+		// action
+		val result2 = calculateCartesianCoordinates(2.0, 90f)
+		// verify
+		// that result is directly to right of user
+		assertEquals(2.0, result2.x, 0.1)
+		assertEquals(0.0, result2.y, 0.1)
+	}
 }
