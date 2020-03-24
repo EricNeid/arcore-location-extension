@@ -13,7 +13,7 @@ import java.util.*
 
 private const val LOCATION_CHANGED_THRESHOLD_M = 5
 
-class LocationArScene(val arSceneView: ArSceneView) {
+class LocationArScene(private val arSceneView: ArSceneView) {
 
 	private val tag = LocationArScene::class.java.simpleName
 
@@ -63,6 +63,12 @@ class LocationArScene(val arSceneView: ArSceneView) {
 	 * render issues with far off markers.
 	 */
 	var maxRenderDistance = 30.0
+
+	init {
+		arSceneView.scene.addOnUpdateListener {
+			arSceneView.arFrame?.let { onSceneUpdate(it) }
+		}
+	}
 
 	fun addMarker(marker: LocationArMarker) {
 		locationMarkers.add(marker)
@@ -166,7 +172,7 @@ class LocationArScene(val arSceneView: ArSceneView) {
 					azimuth = (bearingToMarker - bearing).toFloat()
 			)
 
-			val height = marker.height
+			val heightOffset = 0f
 
 			detachMarker(marker)
 			attachMarker(
@@ -174,7 +180,7 @@ class LocationArScene(val arSceneView: ArSceneView) {
 					session,
 					positionRelativeToUser.x.toFloat(),
 					positionRelativeToUser.y.toFloat(),
-					height
+					heightOffset
 			)
 		}
 	}
@@ -192,11 +198,11 @@ class LocationArScene(val arSceneView: ArSceneView) {
 			session: Session,
 			dX: Float,
 			dY: Float,
-			height: Float
+			heightOffset: Float
 	) {
 		val pos = floatArrayOf(
 				dX,
-				-1.5f,
+				marker.height + heightOffset,
 				-1f * dY
 		)
 		val rotation = floatArrayOf(0f, 0f, 0f, 1f)

@@ -16,7 +16,7 @@ class LocationArMarker(
 	var renderEventListener: RenderEventListener? = null
 
 	/**
-	 * height is the altitude of the object, based on camera height.
+	 * [height] is the altitude of the object, based on camera height.
 	 */
 	var height = 0f
 
