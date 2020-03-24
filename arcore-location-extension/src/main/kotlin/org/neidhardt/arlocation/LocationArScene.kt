@@ -3,11 +3,12 @@ package org.neidhardt.arlocation
 import android.location.Location
 import android.util.Log
 import com.google.ar.core.Frame
+import com.google.ar.core.Pose
+import com.google.ar.core.Session
 import com.google.ar.core.TrackingState
 import com.google.ar.sceneform.ArSceneView
-import org.neidhardt.arlocation.misc.calculateCartesianCoordinates
-import org.neidhardt.arlocation.misc.getBearing
-import org.neidhardt.arlocation.misc.getDistance
+import com.google.ar.sceneform.math.Vector3
+import org.neidhardt.arlocation.misc.*
 import java.util.*
 
 private const val LOCATION_CHANGED_THRESHOLD_M = 5
@@ -148,15 +149,15 @@ class LocationArScene(val arSceneView: ArSceneView) {
 				renderDistance = maxRenderDistance
 			}
 
-
-
-
 			val positionRelativeToUser = calculateCartesianCoordinates(
 					r = renderDistance,
 					azimuth = (bearingToMarker - bearing).toFloat()
 			)
 
+			val height = marker.height
 
+			detachMarker(marker)
+			attachMarker(marker, session, positionRelativeToUser, height)
 		}
 	}
 
@@ -166,5 +167,22 @@ class LocationArScene(val arSceneView: ArSceneView) {
 			isEnabled = false
 		}
 		marker.anchorNode = null
+	}
+
+	private fun attachMarker(
+			marker: LocationMarker,
+			session: Session,
+			positionRelativeToUser: CartesianTuple,
+			height: Float
+	) {
+		val pos = floatArrayOf(
+				positionRelativeToUser.x.toFloat(),
+				-1.5f,
+				-1f * positionRelativeToUser.y.toFloat()
+		)
+		val rotation = floatArrayOf(0f, 0f, 0f, 1f)
+		val anchor = session.createAnchor(Pose(pos, rotation))
+
+
 	}
 }
