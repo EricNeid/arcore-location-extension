@@ -10,10 +10,10 @@ class LocationArMarker(
 	var anchorNode: LocationArNode? = null
 
 	/**
-	 * [renderEventListener] is called on each frame an can be used to update marker
+	 * [onRender] is called on each frame an can be used to update marker
 	 * properties before it is being rendered.
 	 */
-	var renderEventListener: RenderEventListener? = null
+	var onRender: NodeRenderEventListener? = null
 
 	/**
 	 * [height] is the altitude of the object, based on camera height.

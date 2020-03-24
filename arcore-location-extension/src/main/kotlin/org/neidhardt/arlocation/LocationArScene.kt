@@ -208,7 +208,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		val rotation = floatArrayOf(0f, 0f, 0f, 1f)
 		val newAnchor = session.createAnchor(Pose(pos, rotation))
 
-		marker.anchorNode = LocationArNode(newAnchor, marker, this).apply {
+		marker.anchorNode = LocationArNode(newAnchor, marker).apply {
 			setParent(arSceneView.scene)
 			addChild(marker.node)
 		}
