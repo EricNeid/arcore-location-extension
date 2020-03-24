@@ -7,8 +7,10 @@ import com.google.ar.core.Pose
 import com.google.ar.core.Session
 import com.google.ar.core.TrackingState
 import com.google.ar.sceneform.ArSceneView
-import com.google.ar.sceneform.math.Vector3
-import org.neidhardt.arlocation.misc.*
+import org.neidhardt.arlocation.misc.CartesianTuple
+import org.neidhardt.arlocation.misc.calculateCartesianCoordinates
+import org.neidhardt.arlocation.misc.getBearing
+import org.neidhardt.arlocation.misc.getDistance
 import java.util.*
 
 private const val LOCATION_CHANGED_THRESHOLD_M = 5
@@ -17,7 +19,7 @@ class LocationArScene(val arSceneView: ArSceneView) {
 
 	private val tag = LocationArScene::class.java.simpleName
 
-	private val locationMarkers = ArrayList<LocationMarker>()
+	private val locationMarkers = ArrayList<LocationArMarker>()
 
 	/**
 	 * [previousLocation] represents the previous location of the user.
@@ -58,12 +60,12 @@ class LocationArScene(val arSceneView: ArSceneView) {
 	 */
 	var maxRenderDistance = 30.0
 
-	fun addMarker(marker: LocationMarker) {
+	fun addMarker(marker: LocationArMarker) {
 		locationMarkers.add(marker)
 		refreshSceneIfReady()
 	}
 
-	fun removeMarker(marker: LocationMarker) {
+	fun removeMarker(marker: LocationArMarker) {
 		if (!locationMarkers.contains(marker)) {
 			Log.i(tag, "locationMarker was not found in list of rendered marker")
 			return
@@ -161,7 +163,7 @@ class LocationArScene(val arSceneView: ArSceneView) {
 		}
 	}
 
-	private fun detachMarker(marker: LocationMarker) {
+	private fun detachMarker(marker: LocationArMarker) {
 		marker.anchorNode?.apply {
 			anchor?.detach()
 			isEnabled = false
@@ -170,7 +172,7 @@ class LocationArScene(val arSceneView: ArSceneView) {
 	}
 
 	private fun attachMarker(
-			marker: LocationMarker,
+			marker: LocationArMarker,
 			session: Session,
 			positionRelativeToUser: CartesianTuple,
 			height: Float
@@ -181,8 +183,11 @@ class LocationArScene(val arSceneView: ArSceneView) {
 				-1f * positionRelativeToUser.y.toFloat()
 		)
 		val rotation = floatArrayOf(0f, 0f, 0f, 1f)
-		val anchor = session.createAnchor(Pose(pos, rotation))
+		val newAnchor = session.createAnchor(Pose(pos, rotation))
 
-
+		marker.anchorNode = LocationArNode(newAnchor, marker, this).apply {
+			setParent(arSceneView.scene)
+			addChild(marker.node)
+		}
 	}
 }
