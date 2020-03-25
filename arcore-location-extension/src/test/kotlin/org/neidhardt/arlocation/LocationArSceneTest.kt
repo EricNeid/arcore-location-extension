@@ -1,12 +1,12 @@
 package org.neidhardt.arlocation
 
 import com.google.ar.sceneform.ArSceneView
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.MockitoAnnotations
 
 class LocationArSceneTest {
 
@@ -15,33 +15,30 @@ class LocationArSceneTest {
 
 	@Before
 	fun setUp() {
-		MockitoAnnotations.initMocks(this)
+		arSceneView = mock {
+			on { session } doReturn mock {  }
+			on { scene } doReturn mock {  }
+		}
 		unit = LocationArScene(arSceneView)
 	}
 
 	@Test
 	fun onLocationChanged() {
 		// arrange
-		val testData1 = mock<ArLocation> {  }
-		val testData2 = mock<ArLocation> {  }
+		val testData1 = ArLocation(0.0, 1.0)
 		// action
 		unit.onLocationChanged(testData1)
-		unit.onLocationChanged(testData2)
 		// verify
-		assertEquals(testData1, unit.previousLocation)
-		assertEquals(testData2, unit.currentLocation)
+		assertEquals(testData1, unit.currentLocation)
 	}
 
 	@Test
 	fun onBearingChanged() {
 		// arrange
 		val testData1 = 41f
-		val testData2 = 42f
 		// action
 		unit.onBearingChanged(testData1)
-		unit.onBearingChanged(testData2)
 		// verify
-		assertEquals(testData1, unit.previousBearing)
-		assertEquals(testData2, unit.currentBearing)
+		assertEquals(testData1, unit.currentBearing)
 	}
 }

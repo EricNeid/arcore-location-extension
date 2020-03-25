@@ -6,6 +6,19 @@ import org.gavaghan.geodesy.GeodeticCurve
 import org.gavaghan.geodesy.GlobalPosition
 import kotlin.math.*
 
+fun scaleFactorForDistance(distance: Double): Double {
+	if (distance <= 5) {
+		return 1.0
+	}
+	if (distance >= 100) {
+		return 0.2
+	}
+
+	val a = (1.0 / 5.0) + (0.2 / 95.5) - (20.0 / 95.0)
+	val b = (20.0 / 19.0) - (0.2 / 19.0)
+
+	return a * distance + b
+}
 
 fun geodeticCurve(srcLat: Double, srcLon: Double, dstLat: Double, dstLon: Double): GeodeticCurve {
 	val geoCalc = GeodeticCalculator()
@@ -13,34 +26,6 @@ fun geodeticCurve(srcLat: Double, srcLon: Double, dstLat: Double, dstLon: Double
 	val a = GlobalPosition(srcLat, srcLon, 0.0)
 	val b = GlobalPosition(dstLat, dstLon, 0.0)
 	return geoCalc.calculateGeodeticCurve(reference, a, b)
-}
-
-fun getBearing(srcLat: Double, srcLon: Double, dstLat: Double, dstLon: Double): Double {
-	val latitude1 = Math.toRadians(srcLat)
-	val latitude2 = Math.toRadians(dstLat)
-	val longDiff = Math.toRadians(dstLon - srcLon)
-	val y = sin(longDiff) * cos(latitude2)
-	val x = cos(latitude1) * sin(latitude2) - sin(latitude1) * cos(latitude2) * cos(longDiff)
-	return (Math.toDegrees(atan2(y, x)) + 360) % 360
-}
-
-private const val R = 6371 // Radius of the earth
-
-fun getDistance(
-		lat1: Double, lon1: Double,
-		lat2: Double, lon2: Double,
-		el1: Double, el2: Double
-): Double {
-	val latDistance = Math.toRadians(lat2 - lat1)
-	val lonDistance = Math.toRadians(lon2 - lon1)
-	val a = (sin(latDistance / 2) * sin(latDistance / 2)
-			+ (cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2))
-			* sin(lonDistance / 2) * sin(lonDistance / 2)))
-	val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-	var distance = R * c * 1000 // convert to meters
-	val height = el1 - el2
-	distance = distance.pow(2.0) + height.pow(2.0)
-	return sqrt(distance)
 }
 
 fun calculateCartesianCoordinates(r: Double, azimuth: Float): CartesianTuple {

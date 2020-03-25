@@ -6,6 +6,7 @@ import com.google.ar.sceneform.FrameTime
 import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.Vector3
 import org.neidhardt.arlocation.misc.geodeticCurve
+import org.neidhardt.arlocation.misc.scaleFactorForDistance
 import kotlin.math.sqrt
 
 class LocationArNode(
@@ -75,17 +76,4 @@ class LocationArNode(
 		return scaleFixedSize * distanceScaleFactor
 	}
 
-	private fun scaleFactorForDistance(distance: Double): Double {
-		if (distance <= 5) {
-			return 1.0
-		}
-		if (distance >= 100) {
-			return 0.2
-		}
-
-		val a = (1.0 / 5.0) + (0.2 / 95.5) - (20.0 / 95.0)
-		val b = (20.0 / 19.0) - (0.2 / 19.0)
-
-		return a * distance + b
-	}
 }
