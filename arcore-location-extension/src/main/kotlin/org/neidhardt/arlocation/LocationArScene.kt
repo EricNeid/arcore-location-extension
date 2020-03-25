@@ -6,14 +6,14 @@ import com.google.ar.core.Pose
 import com.google.ar.core.Session
 import com.google.ar.core.TrackingState
 import com.google.ar.sceneform.ArSceneView
+import com.google.ar.sceneform.Node
+import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.Vector3
 import org.neidhardt.arlocation.misc.calculateCartesianCoordinates
 import org.neidhardt.arlocation.misc.geodeticCurve
 import org.neidhardt.arlocation.misc.getDistance
 import java.util.*
-import kotlin.math.cos
-import kotlin.math.floor
-import kotlin.math.sin
+import kotlin.math.*
 
 private const val LOCATION_CHANGED_THRESHOLD_M = 5
 private const val MAX_RENDER_DISTANCE = 25f
