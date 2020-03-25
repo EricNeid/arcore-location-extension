@@ -6,17 +6,14 @@ import com.google.ar.core.Pose
 import com.google.ar.core.Session
 import com.google.ar.core.TrackingState
 import com.google.ar.sceneform.ArSceneView
-import com.google.ar.sceneform.Node
-import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.Vector3
 import org.neidhardt.arlocation.misc.calculateCartesianCoordinates
 import org.neidhardt.arlocation.misc.geodeticCurve
-import org.neidhardt.arlocation.misc.getDistance
-import java.util.*
-import kotlin.math.*
+import kotlin.math.cos
+import kotlin.math.floor
+import kotlin.math.sin
 
 private const val LOCATION_CHANGED_THRESHOLD_M = 5
-private const val MAX_RENDER_DISTANCE = 25f
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 class LocationArScene(private val arSceneView: ArSceneView) {
@@ -24,12 +21,12 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 	private val tag = LocationArScene::class.java.simpleName
 
 	private val locationMarkers = ArrayList<LocationArMarker>()
+	private val renderedLocationMarkers = ArrayList<LocationArMarker>()
 
 	/**
-	 * [previousLocation] represents the previous location of the user.
+	 * [previousLocation] represents the position of the user, the last time the scene was refreshed.
 	 */
-	var previousLocation: ArLocation? = null
-		private set
+	private var previousLocation: ArLocation? = null
 
 	/**
 	 * [currentLocation] represents the current position of the user.
@@ -38,11 +35,10 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		private set
 
 	/**
-	 * [previousBearing] represents the previous orientation of the user.
+	 * [previousBearing] represents the bearing of the user, the last time the scene was refreshed.
 	 * It is represented as azimuth in degree: [0,360].
 	 */
-	var previousBearing: Float? = null
-		private set
+	private var previousBearing: Float? = null
 
 	/**
 	 * [currentBearing] represents the current orientation of the user.
@@ -54,8 +50,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 	/**
 	 * [previousTrackingState] represents the previous state of the ar scene.
 	 */
-	var previousTrackingState: TrackingState? = null
-		private set
+	private var previousTrackingState: TrackingState? = null
 
 	/**
 	 * [currentTrackingState] represents the current state of the ar scene.
@@ -77,17 +72,22 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 	}
 
 	fun addMarker(marker: LocationArMarker) {
+		if (locationMarkers.contains(marker)) {
+			Log.w(tag, "locationMarker already added to location scene")
+			return
+		}
 		locationMarkers.add(marker)
 		refreshSceneIfReady()
 	}
 
 	fun removeMarker(marker: LocationArMarker) {
 		if (!locationMarkers.contains(marker)) {
-			Log.i(tag, "locationMarker was not found in list of rendered marker")
+			Log.w(tag, "locationMarker was not found in list markers")
 			return
 		}
 		detachMarker(marker)
 		locationMarkers.remove(marker)
+		renderedLocationMarkers.remove(marker)
 	}
 
 	fun clearMarkers() {
@@ -95,48 +95,56 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 			detachMarker(it)
 		}
 		locationMarkers.clear()
+		renderedLocationMarkers.clear()
 	}
 
 	fun onLocationChanged(newLocation: ArLocation) {
-		previousLocation = currentLocation
+		val firstAvailableLocation = currentLocation == null
 		currentLocation = newLocation
 
-		val prev = previousLocation
-		if (prev == null) {
-			// first available location, just refresh
+		if (firstAvailableLocation) {
+			rememberState()
 			refreshSceneIfReady()
 		} else {
-			// check if user moved far enough
-			val distanceMoved = getDistance(
-					prev.latitude, prev.longitude,
-					newLocation.latitude, newLocation.longitude,
-					0.0, 0.0
-			)
-			if (distanceMoved > LOCATION_CHANGED_THRESHOLD_M) {
-				refreshSceneIfReady()
+			// if previous location is available
+			previousLocation?.let { prev ->
+				// check if user moved far enough
+				val distanceMoved = geodeticCurve(
+						prev.latitude, prev.longitude,
+						newLocation.latitude, newLocation.longitude
+				).ellipsoidalDistance
+				if (distanceMoved > LOCATION_CHANGED_THRESHOLD_M) {
+					refreshSceneIfReady()
+				}
 			}
 		}
 	}
 
 	fun onBearingChanged(newBearing: Float) {
-		previousBearing = currentBearing
+		val firstAvailableBearing = currentBearing == null
 		currentBearing = newBearing
-		// first available bearing
-		if (previousBearing == null) {
+		if (firstAvailableBearing) {
 			refreshSceneIfReady()
 		}
 	}
 
 	private fun onSceneUpdate(frame: Frame) {
-		previousTrackingState = currentTrackingState
 		currentTrackingState = frame.camera.trackingState
 		if (previousTrackingState != currentTrackingState) {
 			refreshSceneIfReady()
 		}
 	}
 
-	private fun refreshSceneIfReady() {
+	private fun rememberState() {
+		previousLocation = currentLocation
+		previousBearing = currentBearing
+		previousTrackingState = currentTrackingState
+	}
+
+	fun refreshSceneIfReady() {
 		Log.i(tag, "refreshSceneIfReady")
+
+		rememberState()
 
 		val trackingState = currentTrackingState ?: return
 		val location = currentLocation ?: return
@@ -151,8 +159,6 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		Log.i(tag, "refreshSceneIfReady $trackingState, $location, $bearing")
 
 		for (marker in locationMarkers) {
-			// detach old marker
-			detachMarker(marker)
 
 			val curve = geodeticCurve(
 					location.latitude,
@@ -164,37 +170,71 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 			val distance = curve.ellipsoidalDistance
 			val bearingToMarker = curve.azimuth.toFloat()
 
-			if (distance > marker.onlyRenderWhenWithin) {
-				Log.i(tag, "Not rendering. Marker distance: $distance Max render distance: ${marker.onlyRenderWhenWithin}")
-				continue
-			}
-
-			var renderDistance = distance
-
-			// limit the distance of the Anchor within the scene, to prevent rendering issues
-			if (renderDistance > maxRenderDistance) {
-				renderDistance = maxRenderDistance
-			}
-
 			if (marker.placementType == LocationArMarker.PlacementType.STATIC) {
-				attachStaticMarker(
-						marker,
-						session,
-						renderDistance,
-						bearing,
-						bearingToMarker
-				)
+				updateStaticMarker(marker, session, distance, bearing, bearingToMarker)
 			}
 			if (marker.placementType == LocationArMarker.PlacementType.DYNAMIC) {
-				attachDynamicMarker(
-						marker,
-						frame,
-						session,
-						distance,
-						renderDistance,
-						bearing,
-						bearingToMarker)
+				updateDynamicMarker(marker, session, frame, distance, bearing, bearingToMarker)
 			}
+		}
+	}
+
+	private fun updateStaticMarker(
+			marker: LocationArMarker,
+			session: Session,
+			distance: Double,
+			bearing: Float,
+			bearingToMarker: Float
+	) {
+		if (renderedLocationMarkers.contains(marker)) {
+			Log.d(tag, "Marker already rendered, skipping")
+			return
+		}
+		if (distance > marker.onlyRenderWhenWithin) {
+			Log.d(tag, "Marker not within range, distance: $distance, range: ${marker.onlyRenderWhenWithin}")
+			detachMarker(marker)
+			renderedLocationMarkers.remove(marker)
+			return
+		}
+		detachMarker(marker)
+		attachStaticMarker(marker, session, distance, bearing, bearingToMarker)
+		renderedLocationMarkers.add(marker)
+	}
+
+	private fun updateDynamicMarker(
+			marker: LocationArMarker,
+			session: Session,
+			frame: Frame,
+			distance: Double,
+			bearing: Float,
+			bearingToMarker: Float
+	) {
+		// detach old marker
+		detachMarker(marker)
+
+		if (distance > marker.onlyRenderWhenWithin) {
+			Log.d(tag, "Marker not within range, distance: $distance, range: ${marker.onlyRenderWhenWithin}")
+			return
+		}
+
+		var renderDistance = distance
+
+		// limit the distance of the Anchor within the scene, to prevent rendering issues
+		if (renderDistance > maxRenderDistance) {
+			renderDistance = maxRenderDistance
+		}
+
+		attachDynamicMarker(
+				marker,
+				frame,
+				session,
+				distance,
+				renderDistance,
+				bearing,
+				bearingToMarker)
+
+		if (!renderedLocationMarkers.contains(marker)) {
+			renderedLocationMarkers.add(marker)
 		}
 	}
 
@@ -226,7 +266,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		val rotation = floatArrayOf(0f, 0f, 0f, 0f)
 		val newAnchor = session.createAnchor(Pose(pos, rotation))
 
-		marker.anchorNode = LocationArNode(newAnchor, marker).apply {
+		marker.anchorNode = LocationArNode(newAnchor, marker, this).apply {
 			setParent(arSceneView.scene)
 			addChild(marker.node)
 		}
@@ -258,7 +298,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		if (renderDistance != markerDistance) {
 			heightAdjustment += 0.005f * (cappedRealDistance - renderDistance)
 		}
-		val z = -renderDistance.toFloat().coerceAtMost(MAX_RENDER_DISTANCE)
+		val z = -renderDistance.toFloat().coerceAtMost(maxRenderDistance.toFloat())
 		val rotationRadian = Math.toRadians(rotation.toDouble())
 		val zRotated = (z * cos(rotationRadian)).toFloat()
 		val xRotated = (-(z * sin(rotationRadian))).toFloat()
@@ -280,7 +320,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 						.extractTranslation()
 		)
 
-		marker.anchorNode = LocationArNode(newAnchor, marker).apply {
+		marker.anchorNode = LocationArNode(newAnchor, marker, this).apply {
 			setParent(arSceneView.scene)
 			addChild(marker.node)
 		}

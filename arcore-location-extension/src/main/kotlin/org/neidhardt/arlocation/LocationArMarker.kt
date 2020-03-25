@@ -38,7 +38,8 @@ class LocationArMarker(
 
 	/**
 	 * [PlacementType] indicates how this maker should be placed.
-	 * Use [PlacementType.STATIC] for maker in close proximity (< 20m).
+	 * Marker cannot be render after 30 meters, so special handling is required
+	 * Use [PlacementType.STATIC] for maker in close proximity (< 30m).
 	 * User [PlacementType.DYNAMIC] for makers far away. The systems tries to emulate the actual distance.
 	 */
 	enum class PlacementType {
@@ -48,12 +49,14 @@ class LocationArMarker(
 
 	/**
 	 * [ScalingMode] defines how the node should scale.
-	 * [DEFAULT] means no special handling. Let ar scene handle everything.
+	 * [DEFAULT] means no special handling. Let ar scene handle everything. Intended for [PlacementType.STATIC].
 	 * [FIXED_SIZE] means the node does not scale.
+	 * [GRADUAL] means scaling the node between 5m and 100m from 1.0 to 0.2.
 	 */
 	enum class ScalingMode {
 		DEFAULT,
-		FIXED_SIZE
+		FIXED_SIZE,
+		GRADUAL
 	}
 
 	/**

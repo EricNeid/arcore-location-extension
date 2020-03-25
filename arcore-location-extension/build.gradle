@@ -1,4 +1,4 @@
-def appVersionName = 'rc3-0.3.3'
+def appVersionName = 'rc3-0.4.1'
 def appVersionCode = 1
 def publishedGroupId = 'org.neidhardt'
 def appPackageName = 'arcore-location-extension'
