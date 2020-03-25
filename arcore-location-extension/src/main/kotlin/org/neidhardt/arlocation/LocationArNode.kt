@@ -12,8 +12,6 @@ class LocationArNode(
 	override fun onUpdate(frameTime: FrameTime?) {
 		super.onUpdate(frameTime)
 
-		locationMarker.onRender?.let {
-			it.onRender(this)
-		}
+		locationMarker.onRender?.onRender(this)
 	}
 }

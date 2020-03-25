@@ -6,13 +6,19 @@ import com.google.ar.core.Pose
 import com.google.ar.core.Session
 import com.google.ar.core.TrackingState
 import com.google.ar.sceneform.ArSceneView
+import com.google.ar.sceneform.math.Vector3
 import org.neidhardt.arlocation.misc.calculateCartesianCoordinates
 import org.neidhardt.arlocation.misc.geodeticCurve
 import org.neidhardt.arlocation.misc.getDistance
 import java.util.*
+import kotlin.math.cos
+import kotlin.math.floor
+import kotlin.math.sin
 
 private const val LOCATION_CHANGED_THRESHOLD_M = 5
+private const val MAX_RENDER_DISTANCE = 25f
 
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 class LocationArScene(private val arSceneView: ArSceneView) {
 
 	private val tag = LocationArScene::class.java.simpleName
@@ -60,9 +66,9 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 	/**
 	 * [maxRenderDistance] a maximum distance for the rendered markers. If the distance of a marker is
 	 * larger than [maxRenderDistance], it's distance is reduced to [maxRenderDistance]. This prevents
-	 * render issues with far off markers.
+	 * render issues with far off markers. ARCore seems to fail if marker is further away than 30 meter.
 	 */
-	var maxRenderDistance = 30.0
+	var maxRenderDistance = 25.0
 
 	init {
 		arSceneView.scene.addOnUpdateListener {
@@ -121,7 +127,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		}
 	}
 
-	fun onSceneUpdate(frame: Frame) {
+	private fun onSceneUpdate(frame: Frame) {
 		previousTrackingState = currentTrackingState
 		currentTrackingState = frame.camera.trackingState
 		if (previousTrackingState != currentTrackingState) {
@@ -136,6 +142,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		val location = currentLocation ?: return
 		val bearing = currentBearing ?: return
 		val session = arSceneView.session ?: return
+		val frame = arSceneView.arFrame ?: return
 
 		if (trackingState != TrackingState.TRACKING) {
 			return
@@ -144,6 +151,8 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		Log.i(tag, "refreshSceneIfReady $trackingState, $location, $bearing")
 
 		for (marker in locationMarkers) {
+			// detach old marker
+			detachMarker(marker)
 
 			val curve = geodeticCurve(
 					location.latitude,
@@ -153,7 +162,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 			)
 
 			val distance = curve.ellipsoidalDistance
-			val bearingToMarker = curve.azimuth
+			val bearingToMarker = curve.azimuth.toFloat()
 
 			if (distance > marker.onlyRenderWhenWithin) {
 				Log.i(tag, "Not rendering. Marker distance: $distance Max render distance: ${marker.onlyRenderWhenWithin}")
@@ -167,21 +176,25 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 				renderDistance = maxRenderDistance
 			}
 
-			val positionRelativeToUser = calculateCartesianCoordinates(
-					r = renderDistance,
-					azimuth = (bearingToMarker - bearing).toFloat()
-			)
-
-			val heightOffset = 0f
-
-			detachMarker(marker)
-			attachMarker(
-					marker,
-					session,
-					positionRelativeToUser.x.toFloat(),
-					positionRelativeToUser.y.toFloat(),
-					heightOffset
-			)
+			if (marker.placementType == LocationArMarker.PlacementType.STATIC) {
+				attachStaticMarker(
+						marker,
+						session,
+						renderDistance,
+						bearing,
+						bearingToMarker
+				)
+			}
+			if (marker.placementType == LocationArMarker.PlacementType.DYNAMIC) {
+				attachDynamicMarker(
+						marker,
+						frame,
+						session,
+						distance,
+						renderDistance,
+						bearing,
+						bearingToMarker)
+			}
 		}
 	}
 
@@ -193,24 +206,84 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		marker.anchorNode = null
 	}
 
-	private fun attachMarker(
+	private fun attachStaticMarker(
 			marker: LocationArMarker,
 			session: Session,
-			dX: Float,
-			dY: Float,
-			heightOffset: Float
+			distance: Double,
+			bearing: Float,
+			bearingToMarker: Float
 	) {
-		val pos = floatArrayOf(
-				dX,
-				marker.height + heightOffset,
-				-1f * dY
+		val positionRelativeToUser = calculateCartesianCoordinates(
+				r = distance,
+				azimuth = (bearingToMarker - bearing)
 		)
-		val rotation = floatArrayOf(0f, 0f, 0f, 1f)
+
+		val pos = floatArrayOf(
+				positionRelativeToUser.x.toFloat(),
+				marker.height,
+				-1f * positionRelativeToUser.y.toFloat()
+		)
+		val rotation = floatArrayOf(0f, 0f, 0f, 0f)
 		val newAnchor = session.createAnchor(Pose(pos, rotation))
 
 		marker.anchorNode = LocationArNode(newAnchor, marker).apply {
 			setParent(arSceneView.scene)
 			addChild(marker.node)
 		}
+	}
+
+	private fun attachDynamicMarker(
+			marker: LocationArMarker,
+			frame: Frame,
+			session: Session,
+			markerDistance: Double,
+			renderDistance: Double,
+			bearing: Float,
+			bearingToMarker: Float
+	) {
+		var markerBearing = bearingToMarker - bearing
+		markerBearing += 360
+		markerBearing %= 360
+
+		val rotation = floor(markerBearing)
+
+		// adjustment to add markers on horizon, instead of just directly in front of camera
+		var heightAdjustment = 0.0
+		// raise distant markers for better illusion of distance
+		val cappedRealDistance = if (markerDistance > 500) {
+			500.0
+		} else {
+			markerDistance
+		}
+		if (renderDistance != markerDistance) {
+			heightAdjustment += 0.005f * (cappedRealDistance - renderDistance)
+		}
+		val z = -renderDistance.toFloat().coerceAtMost(MAX_RENDER_DISTANCE)
+		val rotationRadian = Math.toRadians(rotation.toDouble())
+		val zRotated = (z * cos(rotationRadian)).toFloat()
+		val xRotated = (-(z * sin(rotationRadian))).toFloat()
+		val y = frame.camera.displayOrientedPose.ty() + heightAdjustment.toFloat()
+
+		marker.anchorNode?.apply {
+			anchor?.detach()
+			anchor = null
+			isEnabled = false
+		}
+		marker.anchorNode = null
+
+		// don't immediately assign newly created anchor in-case of exceptions
+		val translation = Pose.makeTranslation(xRotated, y, zRotated)
+		val newAnchor = session.createAnchor(
+				frame.camera
+						.displayOrientedPose
+						.compose(translation)
+						.extractTranslation()
+		)
+
+		marker.anchorNode = LocationArNode(newAnchor, marker).apply {
+			setParent(arSceneView.scene)
+			addChild(marker.node)
+		}
+		marker.node.localPosition = Vector3.zero()
 	}
 }

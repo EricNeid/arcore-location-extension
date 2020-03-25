@@ -25,4 +25,15 @@ class LocationArMarker(
 	 */
 	var onlyRenderWhenWithin = Int.MAX_VALUE
 
+	/**
+	 * [placementType] indicates how this maker should be placed.
+	 * Use [PlacementType.STATIC] for maker in close proximity (< 20m).
+	 * User [PlacementType.DYNAMIC] for makers far away. The systems tries to emulate the actual distance.
+	 */
+	var placementType = PlacementType.STATIC
+
+	enum class PlacementType {
+		STATIC,
+		DYNAMIC
+	}
 }
