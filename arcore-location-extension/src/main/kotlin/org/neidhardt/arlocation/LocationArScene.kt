@@ -65,7 +65,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 	 */
 	var maxRenderDistance = 25.0
 
-	init {
+	fun startLocationScene() {
 		arSceneView.scene.addOnUpdateListener {
 			arSceneView.arFrame?.let { onSceneUpdate(it) }
 		}

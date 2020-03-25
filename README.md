@@ -13,22 +13,43 @@ implementation 'org.neidhardt:arcore-location-extension:0.2.0'
 ## Usage
 
 ```kotlin
+// create location scene
+val locationScene = LocationArScene(arsceneview)
+locationScene.startLocationScene()
+
+// create location marker
 val locationMarker = LocationMarker(lng, lat, createNode())
 
-arsceneview.scene.addOnUpdateListener {
-  // init location scene if required
-  if (locationScene == null) {
-    locationScene = LocationScene(arsceneview_arnavigationactivity)
-  }
-  
-  locationScene?.addMarker(locationMarker)
+// getting location and rotation is up to you
+locationScene.onLocationChanged(newLocation)
+locationScene.onBearingChanged(newBearing)
+```
 
-  val nextFrame = arsceneview_arnavigationactivity.arFrame
+There are several options available for your location markers to explore.
 
-  // process frame
-  if (nextFrame?.camera?.trackingState == TrackingState.TRACKING) {
-    locationScene?.processFrame(nextFrame)
-  }
+For far off markers:
+
+```kotlin
+val marker = LocationArMarker(
+  latitude = 42.0,
+  longitude = 42.0,
+  node = createNode()
+).apply {
+  placementType = LocationArMarker.PlacementType.DYNAMIC
+  rotationMode = LocationArMarker.RotationMode.FACE_USER
+  scalingMode = LocationArMarker.ScalingMode.GRADUAL
+}
+```
+
+For simple markers in close proximity (<30m):
+
+```kotlin
+val marker = LocationArMarker(
+  latitude = 42.0,
+  longitude = 42.0,
+  node = createNode()
+).apply {
+  placementType = LocationArMarker.PlacementType.STATIC
 }
 ```
 
