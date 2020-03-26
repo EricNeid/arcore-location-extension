@@ -11,7 +11,6 @@ import org.neidhardt.arlocation.misc.calculateCartesianCoordinates
 import org.neidhardt.arlocation.misc.geodeticCurve
 import org.neidhardt.arlocation.misc.toRadians
 import kotlin.math.cos
-import kotlin.math.floor
 import kotlin.math.sin
 
 private const val LOCATION_CHANGED_THRESHOLD_M = 5
@@ -218,11 +217,11 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 			return
 		}
 
-		var renderDistance = distance
-
 		// limit the distance of the Anchor within the scene, to prevent rendering issues
-		if (renderDistance > maxRenderDistance) {
-			renderDistance = maxRenderDistance
+		val renderDistance = if (distance > maxRenderDistance) {
+			maxRenderDistance
+		} else {
+			distance
 		}
 
 		attachDynamicMarker(
@@ -282,28 +281,26 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 			bearing: Float,
 			bearingToMarker: Float
 	) {
-		var markerBearing = bearingToMarker - bearing
-		markerBearing += 360
-		markerBearing %= 360
+		val rotation = bearingToMarker - bearing
 
-		val rotation = floor(markerBearing)
-
-		// adjustment to add markers on horizon, instead of just directly in front of camera
-		var heightAdjustment = 0.0
-		// raise distant markers for better illusion of distance
-		val cappedRealDistance = if (markerDistance > 500) {
-			500.0
+		// if marker outside of render distance
+		// raise it for better illusion of distance
+		val heightAdjustment = if (renderDistance != markerDistance) {
+			val cappedRealDistance = if (markerDistance > 500) {
+				500.0
+			} else {
+				markerDistance
+			}
+			0.005 * (cappedRealDistance - renderDistance)
 		} else {
-			markerDistance
+			0.0
 		}
-		if (renderDistance != markerDistance) {
-			heightAdjustment += marker.height + 0.005f * (cappedRealDistance - renderDistance)
-		}
+
 		val z = -renderDistance.toFloat().coerceAtMost(maxRenderDistance.toFloat())
 		val rotationRadian = rotation.toRadians()
 		val zRotated = (z * cos(rotationRadian)).toFloat()
 		val xRotated = (-(z * sin(rotationRadian))).toFloat()
-		val y = frame.camera.displayOrientedPose.ty() + heightAdjustment.toFloat()
+		val y = (frame.camera.displayOrientedPose.ty() + marker.height + heightAdjustment).toFloat()
 
 		marker.anchorNode?.apply {
 			anchor?.detach()
