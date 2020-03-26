@@ -9,6 +9,7 @@ import com.google.ar.sceneform.ArSceneView
 import com.google.ar.sceneform.math.Vector3
 import org.neidhardt.arlocation.misc.calculateCartesianCoordinates
 import org.neidhardt.arlocation.misc.geodeticCurve
+import org.neidhardt.arlocation.misc.toRadians
 import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.sin
@@ -255,7 +256,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 	) {
 		val positionRelativeToUser = calculateCartesianCoordinates(
 				r = distance,
-				azimuth = (bearingToMarker - bearing)
+				azimuth = bearingToMarker - bearing
 		)
 
 		val pos = floatArrayOf(
@@ -299,7 +300,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 			heightAdjustment += 0.005f * (cappedRealDistance - renderDistance)
 		}
 		val z = -renderDistance.toFloat().coerceAtMost(maxRenderDistance.toFloat())
-		val rotationRadian = Math.toRadians(rotation.toDouble())
+		val rotationRadian = rotation.toRadians()
 		val zRotated = (z * cos(rotationRadian)).toFloat()
 		val xRotated = (-(z * sin(rotationRadian))).toFloat()
 		val y = frame.camera.displayOrientedPose.ty() + heightAdjustment.toFloat()

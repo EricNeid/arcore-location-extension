@@ -37,6 +37,6 @@ fun calculateCartesianCoordinates(r: Double, azimuth: Float): CartesianTuple {
 
 data class CartesianTuple(val x: Double, val y: Double)
 
-private fun Float.toRadians(): Double {
+fun Float.toRadians(): Double {
 	return Math.toRadians(this.toDouble())
 }
