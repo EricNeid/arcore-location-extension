@@ -297,7 +297,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 			markerDistance
 		}
 		if (renderDistance != markerDistance) {
-			heightAdjustment += 0.005f * (cappedRealDistance - renderDistance)
+			heightAdjustment += marker.height + 0.005f * (cappedRealDistance - renderDistance)
 		}
 		val z = -renderDistance.toFloat().coerceAtMost(maxRenderDistance.toFloat())
 		val rotationRadian = rotation.toRadians()
