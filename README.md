@@ -7,7 +7,7 @@ their project out as well.
 ## Gradle
 
 ```gradle
-implementation 'org.neidhardt:arcore-location-extension:0.2.0'
+implementation 'org.neidhardt:arcore-location-extension:0.3.0'
 ```
 
 ## Usage
