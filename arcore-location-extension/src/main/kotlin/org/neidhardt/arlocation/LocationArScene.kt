@@ -253,11 +253,14 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 			bearing: Float,
 			bearingToMarker: Float
 	) {
+		// from distance (r) and bearing (azimuth) we can calculate the position in cartesian coordinates (x,y)
+		// x (left/right) is equivalent to x in scene coordinates
+		// y (distance) is equivalent to -1 * z in scene coordinates (values behind camera are positive)
+		// height is equivalent to y in scene coordinates and is unaffected
 		val positionRelativeToUser = calculateCartesianCoordinates(
 				r = distance,
 				azimuth = bearingToMarker - bearing
 		)
-
 		val pos = floatArrayOf(
 				positionRelativeToUser.x.toFloat(),
 				marker.height,
