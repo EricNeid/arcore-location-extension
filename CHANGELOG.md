@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changed
+* Renamed onRender listener -> onUpdate
+* Added FrameTime ton onUpdate callback
+* Made some properties of LocationArNode public
+
 ## v0.4.0 - 2020-03-26
 ### Changed
 * Updated android build tools and dependencies

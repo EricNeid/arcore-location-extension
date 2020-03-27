@@ -20,7 +20,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 
 	private val tag = LocationArScene::class.java.simpleName
 
-	private val locationMarkers = ArrayList<LocationArMarker>()
+	val locationMarkers = ArrayList<LocationArMarker>()
 	private val renderedLocationMarkers = ArrayList<LocationArMarker>()
 
 	/**

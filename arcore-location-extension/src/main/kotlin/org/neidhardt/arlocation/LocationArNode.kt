@@ -9,13 +9,15 @@ import org.neidhardt.arlocation.misc.geodeticCurve
 import org.neidhardt.arlocation.misc.scaleFactorForDistance
 import kotlin.math.sqrt
 
+
+@Suppress("MemberVisibilityCanBePrivate")
 class LocationArNode(
 		anchor: Anchor,
-		private val locationMarker: LocationArMarker,
-		private val locationScene: LocationArScene
+		val locationMarker: LocationArMarker,
+		val locationScene: LocationArScene
 ) : AnchorNode(anchor) {
 
-	override fun onUpdate(frameTime: FrameTime?) {
+	override fun onUpdate(frameTime: FrameTime) {
 		super.onUpdate(frameTime)
 
 		if (locationMarker.scalingMode != LocationArMarker.ScalingMode.DEFAULT) {
@@ -26,7 +28,7 @@ class LocationArNode(
 			rotate()
 		}
 
-		locationMarker.onRender?.onRender(this)
+		locationMarker.onUpdate?.onUpdate(frameTime, this)
 	}
 
 	private fun scale() {
