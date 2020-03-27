@@ -38,10 +38,16 @@ class LocationArNode(
 
 		val scale = when(locationMarker.scalingMode){
 			LocationArMarker.ScalingMode.FIXED_SIZE -> {
-				getScaleFixedSize(direction).toFloat()
+				getScaleFixedSize(
+						direction
+				).toFloat()
 			}
 			LocationArMarker.ScalingMode.GRADUAL -> {
-				getScaleGradual(direction).toFloat()
+				getScaleGradual(
+						direction,
+						locationScene.currentLocation,
+						ArLocation(locationMarker.latitude, locationMarker.longitude)
+				).toFloat()
 			}
 
 			else -> 1f // should not occur
@@ -60,22 +66,33 @@ class LocationArNode(
 		node.worldRotation = lookRotation
 	}
 
-	private fun getScaleFixedSize(direction: Vector3): Double {
-		return sqrt(direction.x * direction.x + direction.y * direction.y + (direction.z * direction.z)
-				.toDouble())
+	companion object {
+
+		fun getScaleFixedSize(direction: Vector3): Double {
+			return sqrt(
+					direction.x.square() +
+					direction.y.square() +
+					direction.z.square()
+			)
+		}
+
+		fun getScaleGradual(direction: Vector3, locationSrc: ArLocation?, locationDst: ArLocation?): Double {
+			val scaleFixedSize = getScaleFixedSize(direction)
+
+			val userLocation = locationSrc ?: return scaleFixedSize
+			val markerLocation = locationDst ?: return scaleFixedSize
+
+			val distance = geodeticCurve(
+					userLocation.latitude, userLocation.longitude,
+					markerLocation.latitude, markerLocation.longitude
+			).ellipsoidalDistance
+
+			val distanceScaleFactor = scaleFactorForDistance(distance)
+			return scaleFixedSize * distanceScaleFactor
+		}
 	}
+}
 
-	private fun getScaleGradual(direction: Vector3): Double {
-		val scaleFixedSize = getScaleFixedSize(direction)
-		val userLocation = locationScene.currentLocation ?: return scaleFixedSize
-
-		val distance = geodeticCurve(
-				userLocation.latitude, userLocation.longitude,
-				locationMarker.latitude, locationMarker.longitude
-		).ellipsoidalDistance
-
-		val distanceScaleFactor = scaleFactorForDistance(distance)
-		return scaleFixedSize * distanceScaleFactor
-	}
-
+private fun Float.square(): Double {
+	return this * this.toDouble()
 }
