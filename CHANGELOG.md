@@ -4,12 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## v0.5.0 - 2020-03-30
 ### Added
 * Property to determine the distance threshold between location updates
 ### Changed
 * Adding a marker not longer updates all other markers in this location scene
-
-### Changed
 * Renamed onRender listener -> onUpdate
 * Added FrameTime ton onUpdate callback
 * Made some properties of LocationArNode public

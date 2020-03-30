@@ -194,7 +194,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		val bearing = currentBearing ?: return
 		val session = arSceneView.session ?: return
 		val frame = arSceneView.arFrame ?: return
-		val trackingState = currentTrackingState ?: return
+		val trackingState = frame.camera.trackingState ?: return
 
 		if (trackingState != TrackingState.TRACKING) {
 			return
