@@ -88,7 +88,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 			return
 		}
 		locationMarkers.add(marker)
-		refreshSceneIfReady()
+		refreshMarker(marker)
 	}
 
 	fun removeMarker(marker: LocationArMarker) {
@@ -162,46 +162,63 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		previousTrackingState = currentTrackingState
 	}
 
+	/**
+	 * [refreshSceneIfReady] refreshes the current scene and redraws all marker currently added.
+	 */
 	fun refreshSceneIfReady() {
 		Log.i(tag, "refreshSceneIfReady")
 
 		rememberState()
 
 		val trackingState = currentTrackingState ?: return
+		if (trackingState != TrackingState.TRACKING) {
+			return
+		}
+
+		for (marker in locationMarkers) {
+			refreshMarker(marker)
+		}
+	}
+
+	/**
+	 * [refreshMarker] refreshes the given location marker.
+	 *
+	 * @param marker to update
+	 */
+	fun refreshMarker(marker: LocationArMarker) {
+		if (!locationMarkers.contains(marker)) {
+			throw IllegalArgumentException("Given marker is not part of this scene, call addMarker instead")
+		}
+
 		val location = currentLocation ?: return
 		val bearing = currentBearing ?: return
 		val session = arSceneView.session ?: return
 		val frame = arSceneView.arFrame ?: return
+		val trackingState = currentTrackingState ?: return
 
 		if (trackingState != TrackingState.TRACKING) {
 			return
 		}
 
-		Log.i(tag, "refreshSceneIfReady $trackingState, $location, $bearing")
+		val curve = geodeticCurve(
+				location.latitude,
+				location.longitude,
+				marker.latitude,
+				marker.longitude
+		)
 
-		for (marker in locationMarkers) {
+		val distance = curve.ellipsoidalDistance
+		val bearingToMarker = curve.azimuth.toFloat()
 
-			val curve = geodeticCurve(
-					location.latitude,
-					location.longitude,
-					marker.latitude,
-					marker.longitude
-			)
-
-			val distance = curve.ellipsoidalDistance
-			val bearingToMarker = curve.azimuth.toFloat()
-
-			if (marker.placementType == LocationArMarker.PlacementType.STATIC) {
-				updateStaticMarker(marker, session, distance, bearing, bearingToMarker)
-			}
-			if (marker.placementType == LocationArMarker.PlacementType.DYNAMIC) {
-				updateDynamicMarker(marker, session, frame, distance, bearing, bearingToMarker)
-			}
+		if (marker.placementType == LocationArMarker.PlacementType.STATIC) {
+			refreshStaticMarker(marker, session, distance, bearing, bearingToMarker)
+		}
+		if (marker.placementType == LocationArMarker.PlacementType.DYNAMIC) {
+			refreshDynamicMarker(marker, session, frame, distance, bearing, bearingToMarker)
 		}
 	}
 
-
-	private fun updateStaticMarker(
+	private fun refreshStaticMarker(
 			marker: LocationArMarker,
 			session: Session,
 			distance: Double,
@@ -223,7 +240,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		renderedLocationMarkers.add(marker)
 	}
 
-	private fun updateDynamicMarker(
+	private fun refreshDynamicMarker(
 			marker: LocationArMarker,
 			session: Session,
 			frame: Frame,
