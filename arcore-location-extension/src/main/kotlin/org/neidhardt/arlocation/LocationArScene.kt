@@ -13,7 +13,7 @@ import org.neidhardt.arlocation.misc.toRadians
 import kotlin.math.cos
 import kotlin.math.sin
 
-private const val LOCATION_CHANGED_THRESHOLD_M = 5
+private const val LOCATION_UPDATE_THRESHOLD_M = 5
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 class LocationArScene(private val arSceneView: ArSceneView) {
@@ -22,6 +22,17 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 
 	val locationMarkers = ArrayList<LocationArMarker>()
 	private val renderedLocationMarkers = ArrayList<LocationArMarker>()
+
+	/**
+	 * [locationUpdateThreshold] represents the minimum distance between 2 calls of [onLocationChanged]
+	 * for scene refresh to be triggered. If the distance between the location of the last update and
+	 * the current update is smaller than the threshold, the scene is not refreshed.
+	 */
+	var locationUpdateThreshold = LOCATION_UPDATE_THRESHOLD_M
+	set(value) {
+		if (value < 0) throw IllegalArgumentException("Threshold must be <= 0")
+		field = value
+	}
 
 	/**
 	 * [previousLocation] represents the position of the user, the last time the scene was refreshed.
@@ -98,6 +109,12 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		renderedLocationMarkers.clear()
 	}
 
+	/**
+	 * [onLocationChanged] updates the current user location in the location scene.
+	 * If no location was set so far, this triggers [refreshSceneIfReady].
+	 * If the distance between the new location and the location of the last update is
+	 * larger than [locationUpdateThreshold], this triggers [refreshSceneIfReady].
+	 */
 	fun onLocationChanged(newLocation: ArLocation) {
 		val firstAvailableLocation = currentLocation == null
 		currentLocation = newLocation
@@ -113,13 +130,17 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 						prev.latitude, prev.longitude,
 						newLocation.latitude, newLocation.longitude
 				).ellipsoidalDistance
-				if (distanceMoved > LOCATION_CHANGED_THRESHOLD_M) {
+				if (distanceMoved > locationUpdateThreshold) {
 					refreshSceneIfReady()
 				}
 			}
 		}
 	}
 
+	/**
+	 * [onBearingChanged] updates the current user bearing in the location scene.
+	 * If no bearing was set so far, this triggers [refreshSceneIfReady].
+	 */
 	fun onBearingChanged(newBearing: Float) {
 		val firstAvailableBearing = currentBearing == null
 		currentBearing = newBearing
@@ -178,6 +199,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 			}
 		}
 	}
+
 
 	private fun updateStaticMarker(
 			marker: LocationArMarker,

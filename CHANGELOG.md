@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+* Property to determine the distance threshold between location updates
+
 ### Changed
 * Renamed onRender listener -> onUpdate
 * Added FrameTime ton onUpdate callback
