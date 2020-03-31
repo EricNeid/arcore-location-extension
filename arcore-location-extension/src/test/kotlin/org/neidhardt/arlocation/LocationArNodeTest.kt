@@ -4,7 +4,6 @@ import com.google.ar.sceneform.math.Vector3
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.neidhardt.arlocation.misc.geodeticCurve
-import org.neidhardt.arlocation.misc.scaleFactorForDistance
 
 class LocationArNodeTest {
 
@@ -30,7 +29,7 @@ class LocationArNodeTest {
 		)
 		// verify
 		assertEquals(
-				LocationArNode.getScaleFixedSize(testDirection) * scaleFactorForDistance(geodeticCurve(
+				LocationArNode.getScaleFixedSize(testDirection) * ArLocationUtils.scaleFactorForDistance(geodeticCurve(
 						52.001, 13.001,
 						52.002, 13.002
 				).ellipsoidalDistance),

@@ -76,17 +76,4 @@ class UtilKtTest {
 		assertEquals(0.0, result2.y, 0.1)
 	}
 
-	@Test
-	fun scaleFactorForDistance() {
-		assertEquals(1.0,
-				scaleFactorForDistance(5.0), 0.1)
-		assertEquals(1.0,
-				scaleFactorForDistance(4.0), 0.1)
-		assertEquals(0.2,
-				scaleFactorForDistance(100.0), 0.1)
-		assertEquals(0.2,
-				scaleFactorForDistance(101.0), 0.1)
-		assertEquals(0.7,
-				scaleFactorForDistance(47.5), 0.1)
-	}
 }

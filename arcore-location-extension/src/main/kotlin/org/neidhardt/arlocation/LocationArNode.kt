@@ -6,9 +6,7 @@ import com.google.ar.sceneform.FrameTime
 import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.Vector3
 import org.neidhardt.arlocation.misc.geodeticCurve
-import org.neidhardt.arlocation.misc.scaleFactorForDistance
 import kotlin.math.sqrt
-
 
 @Suppress("MemberVisibilityCanBePrivate")
 class LocationArNode(
@@ -87,7 +85,7 @@ class LocationArNode(
 					markerLocation.latitude, markerLocation.longitude
 			).ellipsoidalDistance
 
-			val distanceScaleFactor = scaleFactorForDistance(distance)
+			val distanceScaleFactor = ArLocationUtils.scaleFactorForDistance(distance)
 			return scaleFixedSize * distanceScaleFactor
 		}
 	}
