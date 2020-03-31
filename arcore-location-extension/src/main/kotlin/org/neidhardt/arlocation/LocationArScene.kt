@@ -37,12 +37,12 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 	/**
 	 * [previousLocation] represents the position of the user, the last time the scene was refreshed.
 	 */
-	private var previousLocation: ArLocation? = null
+	private var previousLocation: GlobalPosition? = null
 
 	/**
 	 * [currentLocation] represents the current position of the user.
 	 */
-	var currentLocation: ArLocation? = null
+	var currentLocation: GlobalPosition? = null
 		private set
 
 	/**
@@ -115,7 +115,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 	 * If the distance between the new location and the location of the last update is
 	 * larger than [locationUpdateThreshold], this triggers [refreshSceneIfReady].
 	 */
-	fun onLocationChanged(newLocation: ArLocation) {
+	fun onLocationChanged(newLocation: GlobalPosition) {
 		val firstAvailableLocation = currentLocation == null
 		currentLocation = newLocation
 

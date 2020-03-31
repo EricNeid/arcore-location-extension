@@ -25,8 +25,8 @@ class LocationArNodeTest {
 		// action
 		val result = LocationArNode.getScaleGradual(
 				testDirection,
-				ArLocation(52.001, 13.001),
-				ArLocation(52.002, 13.002)
+				GlobalPosition(52.001, 13.001),
+				GlobalPosition(52.002, 13.002)
 		)
 		// verify
 		assertEquals(

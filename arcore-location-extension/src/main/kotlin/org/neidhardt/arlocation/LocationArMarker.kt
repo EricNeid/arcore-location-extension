@@ -36,6 +36,10 @@ class LocationArMarker(
 
 	var rotationMode = RotationMode.DEFAULT
 
+	fun setNodeUpdateEventListener(nodeUpdateEventListener: NodeUpdateEventListener) {
+		onUpdate = nodeUpdateEventListener
+	}
+
 	/**
 	 * [PlacementType] indicates how this maker should be placed.
 	 * Marker cannot be render after 30 meters, so special handling is required

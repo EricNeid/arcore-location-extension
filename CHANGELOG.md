@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changed
+* Renamed ArLocation -> GlobalPosition
+
 ## v0.5.0 - 2020-03-30
 ### Added
 * Property to determine the distance threshold between location updates
