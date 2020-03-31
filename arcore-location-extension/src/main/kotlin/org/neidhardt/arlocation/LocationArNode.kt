@@ -46,7 +46,7 @@ class LocationArNode(
 				getScaleGradual(
 						direction,
 						locationScene.currentLocation,
-						ArLocation(locationMarker.latitude, locationMarker.longitude)
+						GlobalPosition(locationMarker.latitude, locationMarker.longitude)
 				).toFloat()
 			}
 
@@ -76,11 +76,11 @@ class LocationArNode(
 			)
 		}
 
-		fun getScaleGradual(direction: Vector3, locationSrc: ArLocation?, locationDst: ArLocation?): Double {
+		fun getScaleGradual(direction: Vector3, src: GlobalPosition?, dst: GlobalPosition?): Double {
 			val scaleFixedSize = getScaleFixedSize(direction)
 
-			val userLocation = locationSrc ?: return scaleFixedSize
-			val markerLocation = locationDst ?: return scaleFixedSize
+			val userLocation = src ?: return scaleFixedSize
+			val markerLocation = dst ?: return scaleFixedSize
 
 			val distance = geodeticCurve(
 					userLocation.latitude, userLocation.longitude,

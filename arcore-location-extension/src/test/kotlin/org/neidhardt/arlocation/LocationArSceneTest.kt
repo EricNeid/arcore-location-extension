@@ -25,7 +25,7 @@ class LocationArSceneTest {
 	@Test
 	fun onLocationChanged() {
 		// arrange
-		val testData1 = ArLocation(0.0, 1.0)
+		val testData1 = GlobalPosition(0.0, 1.0)
 		// action
 		unit.onLocationChanged(testData1)
 		// verify
