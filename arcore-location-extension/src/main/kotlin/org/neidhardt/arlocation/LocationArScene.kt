@@ -20,7 +20,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 
 	private val tag = LocationArScene::class.java.simpleName
 
-	val locationMarkers = ArrayList<LocationArMarker>()
+	private val locationMarkers = ArrayList<LocationArMarker>()
 	private val renderedLocationMarkers = ArrayList<LocationArMarker>()
 
 	/**
@@ -79,6 +79,30 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 	fun startLocationScene() {
 		arSceneView.scene.addOnUpdateListener {
 			arSceneView.arFrame?.let { onSceneUpdate(it) }
+		}
+	}
+
+	/**
+	 * [getMarkersInScene] returns a list containing all Markers currently added to the scene.
+	 * Changes to this list have no impact on the current visualization.
+	 *
+	 * @return list of location markers
+	 */
+	fun getMarkersInScene(): List<LocationArMarker> {
+		return ArrayList<LocationArMarker>().apply {
+			addAll(locationMarkers)
+		}
+	}
+
+	/**
+	 * [getRenderedMarkersInScene] returns a list containing all Markers currently added
+	 * and rendered to the scene. Changes to this list have no impact on the current visualization.
+	 *
+	 * @return list of location markers
+	 */
+	fun getRenderedMarkersInScene(): List<LocationArMarker> {
+		return ArrayList<LocationArMarker>().apply {
+			addAll(renderedLocationMarkers)
 		}
 	}
 
