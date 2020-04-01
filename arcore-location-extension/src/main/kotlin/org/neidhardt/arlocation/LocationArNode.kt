@@ -25,7 +25,7 @@ class LocationArNode(
 			rotate()
 		}
 
-		locationMarker.onUpdate?.onUpdate(frameTime, this)
+		locationMarker.onUpdate?.invoke(frameTime, this)
 	}
 
 	private fun scale() {

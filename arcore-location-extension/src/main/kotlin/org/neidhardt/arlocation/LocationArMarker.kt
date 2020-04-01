@@ -1,5 +1,6 @@
 package org.neidhardt.arlocation
 
+import com.google.ar.sceneform.FrameTime
 import com.google.ar.sceneform.Node
 
 class LocationArMarker(
@@ -13,7 +14,7 @@ class LocationArMarker(
 	 * [onUpdate] is called on each frame an can be used to update marker
 	 * properties before it is being rendered.
 	 */
-	var onUpdate: NodeUpdateEventListener? = null
+	var onUpdate: ((frameTime: FrameTime, locationNode: LocationArNode) -> Unit)? = null
 
 	/**
 	 * [height] is the altitude of the object, based on camera height.
@@ -35,10 +36,6 @@ class LocationArMarker(
 	var scalingMode = ScalingMode.DEFAULT
 
 	var rotationMode = RotationMode.DEFAULT
-
-	fun setNodeUpdateEventListener(nodeUpdateEventListener: NodeUpdateEventListener) {
-		onUpdate = nodeUpdateEventListener
-	}
 
 	/**
 	 * [PlacementType] indicates how this maker should be placed.
