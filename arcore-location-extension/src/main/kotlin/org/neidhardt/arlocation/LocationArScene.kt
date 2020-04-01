@@ -381,6 +381,5 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 			setParent(arSceneView.scene)
 			addChild(marker.node)
 		}
-		marker.node.localPosition = Vector3.zero()
 	}
 }
