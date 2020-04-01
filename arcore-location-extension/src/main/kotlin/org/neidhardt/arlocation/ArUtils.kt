@@ -68,11 +68,13 @@ object ArUtils {
 			cameraBearing: Float,
 			bearingToObject: Float
 	): ArPosition {
-		val r = distance
-		val alpha = (bearingToObject - cameraBearing)
+		val rotation = (bearingToObject - cameraBearing)
 
 		// r and alpha are polar coordinates, convert to cartesian for ar position
-		val result = calculateCartesianCoordinates(r, alpha)
+		val result = calculateCartesianCoordinates(
+				r = distance,
+				azimuth = rotation
+		)
 		return ArPosition(result.first.toFloat(), result.second.toFloat())
 	}
 
