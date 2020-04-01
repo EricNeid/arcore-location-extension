@@ -43,7 +43,7 @@ class LocationArNode(
 				getScaleGradual(
 						direction,
 						locationScene.currentLocation,
-						GlobalPosition(locationMarker.latitude, locationMarker.longitude)
+						locationMarker.globalPosition
 				).toFloat()
 			}
 

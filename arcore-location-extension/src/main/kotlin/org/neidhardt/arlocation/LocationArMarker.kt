@@ -4,8 +4,7 @@ import com.google.ar.sceneform.FrameTime
 import com.google.ar.sceneform.Node
 
 class LocationArMarker(
-		var latitude: Double,
-		var longitude: Double,
+		var globalPosition: GlobalPosition,
 		var node: Node
 ) {
 	var anchorNode: LocationArNode? = null

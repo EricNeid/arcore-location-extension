@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 * Property locationMarkers no longer public, use getMarkersInScene() and getRenderedMarkersInScene()
 * Cleanup of non-ar related api -> made unrelated functions internal
 * NodeUpdateEventListener transformed to kotlin lambda
+* Changed constructor of LocationArNode to accept GlobalPosition instead of lat/lng
 
 ## v0.5.0 - 2020-03-30
 ### Added

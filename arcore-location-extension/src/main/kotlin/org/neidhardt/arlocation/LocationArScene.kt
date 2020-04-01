@@ -223,7 +223,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 
 		val curve = GlobalPositionUtils.geodeticCurve(
 				location,
-				GlobalPosition(marker.latitude, marker.longitude)
+				marker.globalPosition
 		)
 
 		val distance = curve.ellipsoidalDistance
