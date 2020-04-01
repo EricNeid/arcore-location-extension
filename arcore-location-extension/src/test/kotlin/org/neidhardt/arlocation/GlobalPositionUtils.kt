@@ -51,7 +51,8 @@ class GlobalPositionUtilsTest {
 	}
 
 	@Test
-	fun distance() { // action
+	fun geodeticCurve() {
+		// action
 		val result = geodeticCurve(
 				GlobalPosition(52.589738, 11.172685),
 				GlobalPosition(52.591484, 11.238992)
@@ -60,4 +61,15 @@ class GlobalPositionUtilsTest {
 		assertEquals(4497.859, result, 15.0)
 	}
 
+	@Test
+	fun endOfGeodeticCurve() {
+		// action
+		val result = GlobalPositionUtils.endOfGeodeticCurve(
+				GlobalPosition(52.589738, 11.172685),
+				0.0,
+				500.0
+		)
+		assertEquals(52.594231, result.latitude, 0.001)
+		assertEquals(11.172685, result.longitude, 0.001)
+	}
 }

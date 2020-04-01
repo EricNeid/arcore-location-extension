@@ -15,4 +15,10 @@ object GlobalPositionUtils {
 		val b = Pos(dst.latitude, dst.longitude, 0.0)
 		return geoCalc.calculateGeodeticCurve(reference, a, b)
 	}
+
+	internal fun endOfGeodeticCurve(src: GlobalPosition, bearing: Double, distance: Double): GlobalPosition {
+		val start = Pos(src.latitude, src.longitude, 0.0)
+		val result = geoCalc.calculateEndingGlobalCoordinates(reference, start, bearing, distance)
+		return GlobalPosition(result.latitude, result.longitude)
+	}
 }
