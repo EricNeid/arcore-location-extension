@@ -6,7 +6,6 @@ import com.google.ar.core.Pose
 import com.google.ar.core.Session
 import com.google.ar.core.TrackingState
 import com.google.ar.sceneform.ArSceneView
-import com.google.ar.sceneform.math.Vector3
 import kotlin.math.cos
 import kotlin.math.sin
 
