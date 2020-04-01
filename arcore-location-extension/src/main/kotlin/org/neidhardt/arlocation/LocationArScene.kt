@@ -7,9 +7,6 @@ import com.google.ar.core.Session
 import com.google.ar.core.TrackingState
 import com.google.ar.sceneform.ArSceneView
 import com.google.ar.sceneform.math.Vector3
-import org.neidhardt.arlocation.misc.calculateCartesianCoordinates
-import org.neidhardt.arlocation.misc.geodeticCurve
-import org.neidhardt.arlocation.misc.toRadians
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -150,9 +147,9 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 			// if previous location is available
 			previousLocation?.let { prev ->
 				// check if user moved far enough
-				val distanceMoved = geodeticCurve(
-						prev.latitude, prev.longitude,
-						newLocation.latitude, newLocation.longitude
+				val distanceMoved = GlobalPositionUtils.geodeticCurve(
+						prev,
+						newLocation
 				).ellipsoidalDistance
 				if (distanceMoved > locationUpdateThreshold) {
 					refreshSceneIfReady()
@@ -224,11 +221,9 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 			return
 		}
 
-		val curve = geodeticCurve(
-				location.latitude,
-				location.longitude,
-				marker.latitude,
-				marker.longitude
+		val curve = GlobalPositionUtils.geodeticCurve(
+				location,
+				GlobalPosition(marker.latitude, marker.longitude)
 		)
 
 		val distance = curve.ellipsoidalDistance
@@ -260,7 +255,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 			return
 		}
 		detachMarker(marker)
-		attachStaticMarker(marker, session, distance, bearing, bearingToMarker)
+		attachStaticMarker(session, marker, distance, bearing, bearingToMarker)
 		renderedLocationMarkers.add(marker)
 	}
 
@@ -288,9 +283,9 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		}
 
 		attachDynamicMarker(
-				marker,
-				frame,
 				session,
+				frame,
+				marker,
 				distance,
 				renderDistance,
 				bearing,
@@ -310,24 +305,22 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 	}
 
 	private fun attachStaticMarker(
-			marker: LocationArMarker,
 			session: Session,
+			marker: LocationArMarker,
 			distance: Double,
-			bearing: Float,
+			userBearing: Float,
 			bearingToMarker: Float
 	) {
-		// from distance (r) and bearing (azimuth) we can calculate the position in cartesian coordinates (x,y)
-		// x (left/right) is equivalent to x in scene coordinates
-		// y (distance) is equivalent to -1 * z in scene coordinates (values behind camera are positive)
-		// height is equivalent to y in scene coordinates and is unaffected
-		val positionRelativeToUser = calculateCartesianCoordinates(
-				r = distance,
-				azimuth = bearingToMarker - bearing
+		val arPosition = ArUtils.calculateArPosition(
+				distance = distance,
+				cameraBearing =  userBearing,
+				bearingToObject = bearingToMarker
 		)
+
 		val pos = floatArrayOf(
-				positionRelativeToUser.x.toFloat(),
+				arPosition.x,
 				marker.height,
-				-1f * positionRelativeToUser.y.toFloat()
+				-1f * arPosition.z
 		)
 		val rotation = floatArrayOf(0f, 0f, 0f, 0f)
 		val newAnchor = session.createAnchor(Pose(pos, rotation))
@@ -339,15 +332,15 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 	}
 
 	private fun attachDynamicMarker(
-			marker: LocationArMarker,
-			frame: Frame,
 			session: Session,
+			frame: Frame,
+			marker: LocationArMarker,
 			markerDistance: Double,
 			renderDistance: Double,
-			bearing: Float,
+			userBearing: Float,
 			bearingToMarker: Float
 	) {
-		val rotation = bearingToMarker - bearing
+		val rotation = bearingToMarker - userBearing
 
 		// if marker outside of render distance
 		// raise it for better illusion of distance

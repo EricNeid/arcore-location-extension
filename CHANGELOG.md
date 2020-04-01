@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 * Renamed ArLocation -> GlobalPosition
 * Property locationMarkers no longer public, use getMarkersInScene() and getRenderedMarkersInScene()
+* Cleanup of non-ar related api -> made unrelated functions internal
 
 ## v0.5.0 - 2020-03-30
 ### Added
