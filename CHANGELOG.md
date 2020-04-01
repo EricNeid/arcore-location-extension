@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+* Utils to calculate ar position from GlobalPosition
 ### Changed
 * Renamed ArLocation -> GlobalPosition
 * Property locationMarkers no longer public, use getMarkersInScene() and getRenderedMarkersInScene()
