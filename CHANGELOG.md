@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changed
+* Renamed scaleFactorForDistance -> linearScaleFactor
+
 ### Added
 * Utils to calculate ar position from GlobalPosition
 ### Changed

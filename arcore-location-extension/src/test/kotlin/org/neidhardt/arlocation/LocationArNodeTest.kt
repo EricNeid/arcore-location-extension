@@ -34,7 +34,7 @@ class LocationArNodeTest {
 		)
 		// verify
 		assertEquals(
-				LocationArNode.getScaleFixedSize(testDirection) * ArUtils.scaleFactorForDistance(distance),
+				LocationArNode.getScaleFixedSize(testDirection) * ArUtils.linearScaleFactor(distance),
 				result,
 				0.1
 		)

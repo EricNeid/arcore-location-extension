@@ -84,7 +84,7 @@ class LocationArNode(
 					markerLocation
 			).ellipsoidalDistance
 
-			val distanceScaleFactor = ArUtils.scaleFactorForDistance(distance)
+			val distanceScaleFactor = ArUtils.linearScaleFactor(distance)
 			return scaleFixedSize * distanceScaleFactor
 		}
 	}

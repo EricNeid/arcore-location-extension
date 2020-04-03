@@ -6,23 +6,23 @@ import kotlin.math.sin
 object ArUtils {
 
 	/**
-	 * [scaleFactorForDistance] returns the scale factor of ar object, depending on the distance.
+	 * [linearScaleFactor] returns the scale factor of ar object, depending on the distance.
 	 * @param distance distance to marker
 	 * @return scale factor
 	 */
-	fun scaleFactorForDistance(distance: Double): Double {
-		return scaleFactorForDistance(distance, 0.2, 100.0, 5.0)
+	fun linearScaleFactor(distance: Double): Double {
+		return linearScaleFactor(distance, 0.2, 100.0, 5.0)
 	}
 
 	/**
-	 * [scaleFactorForDistance] returns the scale factor of ar object, depending on the distance.
+	 * [linearScaleFactor] returns the scale factor of ar object, depending on the distance.
 	 * @param distance distance to marker
 	 * @param minScale minimum scale at maximum distance
 	 * @param maxDistance maximum distance to scale down (size is minScale beyond this distance)
 	 * @param minDistance minimum distance to apply scaling (size is 1 before this distance)
 	 * @return scale factor
 	 */
-	fun scaleFactorForDistance(
+	fun linearScaleFactor(
 			distance: Double,
 			minScale: Double,
 			maxDistance: Double,

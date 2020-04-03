@@ -7,13 +7,13 @@ import org.junit.Assert.*
 class ArUtilsTest {
 
 	@Test
-	fun scaleFactorForDistance() {
-		assertEquals(1.0, ArUtils.scaleFactorForDistance(5.0), 0.1)
-		assertEquals(0.2, ArUtils.scaleFactorForDistance(100.0), 0.1)
-		assertEquals(0.7, ArUtils.scaleFactorForDistance(47.5), 0.1)
+	fun linearScaleFactor() {
+		assertEquals(1.0, ArUtils.linearScaleFactor(5.0), 0.1)
+		assertEquals(0.2, ArUtils.linearScaleFactor(100.0), 0.1)
+		assertEquals(0.7, ArUtils.linearScaleFactor(47.5), 0.1)
 
-		assertEquals(1.0, ArUtils.scaleFactorForDistance(4.0, 0.3, 200.0, 4.0), 0.1)
-		assertEquals(0.3, ArUtils.scaleFactorForDistance(200.0, 0.3, 200.0, 4.0), 0.1)
+		assertEquals(1.0, ArUtils.linearScaleFactor(4.0, 0.3, 200.0, 4.0), 0.1)
+		assertEquals(0.3, ArUtils.linearScaleFactor(200.0, 0.3, 200.0, 4.0), 0.1)
 	}
 
 	@Test
