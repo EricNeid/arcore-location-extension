@@ -39,4 +39,5 @@ class LocationArNodeTest {
 				0.1
 		)
 	}
+
 }

@@ -46,6 +46,14 @@ class LocationArNode(
 						locationMarker.globalPosition
 				).toFloat()
 			}
+			LocationArMarker.ScalingMode.CUSTOM -> {
+				getScaleCustom(
+						direction,
+						this,
+						locationScene.currentLocation,
+						locationMarker.globalPosition
+				).toFloat()
+			}
 
 			else -> 1f // should not occur
 		}
@@ -65,7 +73,30 @@ class LocationArNode(
 
 	companion object {
 
-		fun getScaleFixedSize(direction: Vector3): Double {
+		internal fun getScaleCustom(
+				direction: Vector3,
+				locationArNode: LocationArNode,
+				src: GlobalPosition?,
+				dst: GlobalPosition?
+		): Double {
+			val scaleFixedSize = getScaleFixedSize(direction)
+
+			val scaleFunction = locationArNode.locationMarker.customScale
+					?: throw UnsupportedOperationException("Using CUSTOM_SCALE requires settings customScale function")
+
+			val userLocation = src ?: return scaleFixedSize
+			val markerLocation = dst ?: return scaleFixedSize
+
+			val distance = GlobalPositionUtils.geodeticCurve(
+					userLocation,
+					markerLocation
+			).ellipsoidalDistance
+
+			val scaleFactor = scaleFunction.invoke(distance, locationArNode)
+			return scaleFixedSize * scaleFactor
+		}
+
+		internal fun getScaleFixedSize(direction: Vector3): Double {
 			return sqrt(
 					direction.x.square() +
 					direction.y.square() +
@@ -73,7 +104,7 @@ class LocationArNode(
 			)
 		}
 
-		fun getScaleGradual(direction: Vector3, src: GlobalPosition?, dst: GlobalPosition?): Double {
+		internal fun getScaleGradual(direction: Vector3, src: GlobalPosition?, dst: GlobalPosition?): Double {
 			val scaleFixedSize = getScaleFixedSize(direction)
 
 			val userLocation = src ?: return scaleFixedSize

@@ -4,9 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## v0.7.0 - 2020-04-03
+### Added
+* Ability to set custom scale factor
 ### Changed
 * Renamed scaleFactorForDistance -> linearScaleFactor
+* Made some helper functions internal
 
+## v0.6.0 - 2020-04-01
 ### Added
 * Utils to calculate ar position from GlobalPosition
 ### Changed

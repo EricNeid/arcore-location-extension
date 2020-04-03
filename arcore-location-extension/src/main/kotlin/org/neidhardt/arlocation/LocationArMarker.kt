@@ -37,6 +37,11 @@ class LocationArMarker(
 	var rotationMode = RotationMode.DEFAULT
 
 	/**
+	 * [customScale] should be set, when [ScalingMode.CUSTOM] is used to define the scaling behaviour.
+	 */
+	var customScale: ((distance: Double, locationNode: LocationArNode) -> Double)? = null
+
+	/**
 	 * [PlacementType] indicates how this maker should be placed.
 	 * Marker cannot be render after 30 meters, so special handling is required
 	 * Use [PlacementType.STATIC] for maker in close proximity (< 30m).
@@ -48,15 +53,19 @@ class LocationArMarker(
 	}
 
 	/**
-	 * [ScalingMode] defines how the node should scale.
+	 * [ScalingMode] defines how the node should scale. If [PlacementType.STATIC] is used, the scaling
+	 * mode should remain [DEFAULT], otherwise the behaviour is undefined.
+	 *
 	 * [DEFAULT] means no special handling. Let ar scene handle everything. Intended for [PlacementType.STATIC].
 	 * [FIXED_SIZE] means the node does not scale.
 	 * [GRADUAL] means scaling the node between 5m and 100m from 1.0 to 0.2.
+	 * [CUSTOM] allows you to provide your own scaling. It requires setting scaling function [customScale].
 	 */
 	enum class ScalingMode {
 		DEFAULT,
 		FIXED_SIZE,
-		GRADUAL
+		GRADUAL,
+		CUSTOM
 	}
 
 	/**
