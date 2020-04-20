@@ -360,13 +360,6 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		val xRotated = (-(z * sin(rotationRadian))).toFloat()
 		val y = (frame.camera.displayOrientedPose.ty() + marker.height + heightAdjustment).toFloat()
 
-		marker.anchorNode?.apply {
-			anchor?.detach()
-			anchor = null
-			isEnabled = false
-		}
-		marker.anchorNode = null
-
 		// don't immediately assign newly created anchor in-case of exceptions
 		val translation = Pose.makeTranslation(xRotated, y, zRotated)
 		val newAnchor = session.createAnchor(
