@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+### Fixed
+* Dynamically placing markers did not take the current camera position into account
+(they were always placed relative to world origin and not to the camera)
+* Dynamically placed marker was detached twice
 
 ## v0.7.0 - 2020-04-03
 ### Added

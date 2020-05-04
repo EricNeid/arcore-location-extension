@@ -229,7 +229,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		val bearingToMarker = curve.azimuth.toFloat()
 
 		if (marker.placementType == LocationArMarker.PlacementType.STATIC) {
-			refreshStaticMarker(marker, session, distance, bearing, bearingToMarker)
+			refreshStaticMarker(marker, session, frame, distance, bearing, bearingToMarker)
 		}
 		if (marker.placementType == LocationArMarker.PlacementType.DYNAMIC) {
 			refreshDynamicMarker(marker, session, frame, distance, bearing, bearingToMarker)
@@ -239,6 +239,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 	private fun refreshStaticMarker(
 			marker: LocationArMarker,
 			session: Session,
+			frame: Frame,
 			distance: Double,
 			bearing: Float,
 			bearingToMarker: Float
@@ -254,7 +255,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 			return
 		}
 		detachMarker(marker)
-		attachStaticMarker(session, marker, distance, bearing, bearingToMarker)
+		attachStaticMarker(session, frame, marker, distance, bearing, bearingToMarker)
 		renderedLocationMarkers.add(marker)
 	}
 
@@ -305,6 +306,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 
 	private fun attachStaticMarker(
 			session: Session,
+			frame: Frame,
 			marker: LocationArMarker,
 			distance: Double,
 			userBearing: Float,
@@ -316,13 +318,24 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 				bearingToObject = bearingToMarker
 		)
 
-		val pos = floatArrayOf(
+		val translation = Pose.makeTranslation(
 				arPosition.x,
 				marker.height,
 				-1f * arPosition.z
 		)
-		val rotation = floatArrayOf(0f, 0f, 0f, 0f)
-		val newAnchor = session.createAnchor(Pose(pos, rotation))
+
+		val translatedPose = frame.camera
+				.displayOrientedPose
+				.compose(translation)
+				.extractTranslation()
+
+		val newAnchor = session.createAnchor(
+			Pose(floatArrayOf(
+					translatedPose.tx(),
+					marker.height,
+					translatedPose.tz()
+			), floatArrayOf(0f, 0f, 0f, 0f) )
+		)
 
 		marker.anchorNode = LocationArNode(newAnchor, marker, this).apply {
 			setParent(arSceneView.scene)
