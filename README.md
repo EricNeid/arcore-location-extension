@@ -6,8 +6,11 @@ their project out as well.
 
 ## Gradle
 
+Check for the release pages for the latest version. If using gradle you can reference the 
+library like this (it's on jcenter): 
+
 ```gradle
-implementation 'org.neidhardt:arcore-location-extension:0.3.0'
+implementation 'org.neidhardt:arcore-location-extension:x.x.x'
 ```
 
 ## Usage
