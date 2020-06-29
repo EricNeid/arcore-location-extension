@@ -104,8 +104,9 @@ fun LocationArScene.renderArObject(
 
   val marker = LocationArMarker(GlobalPosition(lat, lng), node).apply {
     this.height = height
-    placementType = LocationArMarker.PlacementType.STATIC
-    onlyRenderWhenWithin = 25
+    placementType = LocationArMarker.PlacementType.DYNAMIC
+    rotationMode = LocationArMarker.RotationMode.FACE_USER
+    scalingMode = LocationArMarker.ScalingMode.GRADUAL
   }
 
   addMarker(marker)
@@ -139,13 +140,13 @@ class ArSceneLifecycleUtil(
         arSceneView.setupSession(session)
       }
     } catch (e: UnavailableException) {
-      throw UnavailableException("Cannot resume ArSceneView, because ar core is not available $e")
+      throw UnavailableException("Cannot resume ArSceneView, because ar core is not available: $e")
     }
 
     try {
       arSceneView.resume()
     } catch (e: CameraNotAvailableException) {
-      throw CameraNotAvailableException("Cannot resume ArSceneView, because camera is not available $e")
+      throw CameraNotAvailableException("Cannot resume ArSceneView, because camera is not available: $e")
     }
   }
 
@@ -192,7 +193,7 @@ class SimpleDemoActivity : AppCompatActivity() {
         locationArScene.renderArObject(
           42.0, // lat
           13.0, // lng
-          -1.5, // height of camera
+          -1.5, // height of object, compensate with camera height
           renderable
         )
       },
@@ -266,7 +267,7 @@ class SimpleDemoActivity : AppCompatActivity() {
 dependencies {
   // arcore
   implementation 'com.google.ar:core:1.16.0'
-  implementation "com.google.ar.sceneform.ux:sceneform-ux:1.15.0"
+  implementation 'com.google.ar.sceneform.ux:sceneform-ux:1.15.0'
   implementation 'org.neidhardt:arcore-location-extension:0.7.2'
 }
 ```
