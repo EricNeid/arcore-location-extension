@@ -28,11 +28,11 @@ class ArUtilsTest {
 	@Test
 	fun calculateArPosition_fromGlobalPositions() {
 		// arrange
-		val cameraPosition = GlobalPosition(52.0, 13.0)
-		val objectPosition = GlobalPositionUtils.endOfGeodeticCurve(cameraPosition, 90.0, 1.0)
+		val referencePosition = GlobalPosition(52.0, 13.0)
+		val objectPosition = GlobalPositionUtils.endOfGeodeticCurve(referencePosition, 90.0, 1.0)
 
 		// action
-		val result = ArUtils.calculateArPosition(cameraPosition, 0f, objectPosition)
+		val result = ArUtils.calculateArPosition(referencePosition, 0f, objectPosition)
 
 		// verify
 		assertEquals(1f, result.x)

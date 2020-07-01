@@ -45,24 +45,36 @@ object ArUtils {
 		return distance * m + n
 	}
 
+	/**
+	 * [calculateArPosition] returns the position of object in ar coordinates, relative to the given
+	 * reference position and bearing. To obtain the position relative to the origin of the ar scene,
+	 * the initial user's position and bearing should be used as a reference.
+	 * @return arPosition
+	 */
 	fun calculateArPosition(
-			cameraPosition: GlobalPosition,
-			cameraBearing: Float,
+			referencePosition: GlobalPosition,
+			referenceBearing: Float,
 			objectPosition: GlobalPosition
 	): ArPosition {
 		val curve = GlobalPositionUtils.geodeticCurve(
-				cameraPosition,
+				referencePosition,
 				objectPosition
 		)
 		val r = curve.ellipsoidalDistance
 		val bearing = curve.azimuth
-		val alpha = (bearing - cameraBearing).toFloat()
+		val alpha = (bearing - referenceBearing).toFloat()
 
 		// r and alpha are polar coordinates, convert to cartesian for ar position
 		val result = calculateCartesianCoordinates(r, alpha)
 		return ArPosition(result.first.toFloat(), result.second.toFloat())
 	}
 
+	/**
+	 * [calculateArPosition] returns the position of object in ar coordinates, relative to the current
+	 * camera (defined by bearing and distance). This position must be composed with the current camera
+	 * position to obtain coordinates relative to the origin of the ar scene.
+	 * @return arPosition
+	 */
 	fun calculateArPosition(
 			distance: Double,
 			cameraBearing: Float,
