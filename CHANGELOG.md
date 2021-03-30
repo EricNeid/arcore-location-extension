@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+## v0.8.0 - 2021-03-30
+* First release to maven central
+* groupId has changed from org.neidhardt to com.github.ericneid
+
 ## v0.7.2 - 2020-05-04
 ### Fixed
 * Dynamically placing markers did not take the current camera position into account

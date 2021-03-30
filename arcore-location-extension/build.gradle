@@ -1,46 +1,24 @@
-def appVersionName = '0.7.2'
-def appVersionCode = 1
-def publishedGroupId = 'org.neidhardt'
-def appPackageName = 'arcore-location-extension'
+def groupId = 'com.github.ericneid'
+def libraryName = 'arcore-location-extension'
+def libraryVersion = '0.8.0'
 
-def bintrayRepo = 'maven'
-
-def libraryDescription = 'Utilities for ARCore to place ar markers on geo locations.'
-
-def siteUrl = 'https://github.com/EricNeid/arcore-location-extension'
-def gitUrl = 'https://github.com/EricNeid/arcore-location-extension.git'
-
-def libraryVersion = appVersionName
-
-def developerId = 'combatmage'
-def developerName = 'Eric Neidhardt'
-def developerEmail = 'eric.neidhardt@gmail.com'
-
-def licenseName = 'MIT'
-def licenseUrl = 'https://opensource.org/licenses/MIT'
-def allLicenses = ["MIT"]
-
-def compileSdk = ext.compileSdk
-def minSdk = ext.minSdk
-def targetSdk = ext.targetSdk
-
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-android'
-
-// javadoc currently breaks with kotlin files and bintray
-tasks.withType(Javadoc) {
-	enabled = false
+ext {
+	PUBLISH_GROUP_ID = groupId
+	PUBLISH_VERSION = libraryVersion
+	PUBLISH_ARTIFACT_ID = libraryName
 }
 
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply from: "${rootProject.projectDir}/scripts/publish-mavencentral.gradle"
+
 android {
-	compileSdkVersion compileSdk
+	compileSdkVersion rootProject.compileSdkVersion
+	buildToolsVersion rootProject.buildToolsVersion
 
 	defaultConfig {
-		minSdkVersion minSdk
-		targetSdkVersion targetSdk
-		versionCode appVersionCode
-		versionName appVersionName
+		minSdkVersion project.minSdkVersion
+		targetSdkVersion project.targetSdkVersion
 		testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 	}
 
@@ -67,6 +45,10 @@ android {
 	}
 }
 
+group = groupId
+version = libraryVersion
+archivesBaseName = libraryName
+
 repositories {
 	google()
 	jcenter()
@@ -74,8 +56,6 @@ repositories {
 }
 
 dependencies {
-	implementation fileTree(dir: 'libs', include: ['*.jar'])
-
 	// kotlin
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
@@ -105,102 +85,3 @@ dependencies {
 	testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
 }
 
-apply plugin: 'com.github.dcendents.android-maven'
-
-// Bintray section
-// make sure that you have the following in your local.properties
-// bintray.user=<your user name>
-// bintray.apikey=<your api key
-apply plugin: 'com.jfrog.bintray'
-
-version = libraryVersion
-group = publishedGroupId
-
-if (project.hasProperty("android")) { // Android libraries
-	task sourcesJar(type: Jar) {
-		classifier 'sources'
-		from android.sourceSets.main.java.srcDirs
-	}
-
-	task javadoc(type: Javadoc) {
-		source = android.sourceSets.main.java.srcDirs
-		classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-	}
-} else { // Java libraries
-	task sourcesJar(type: Jar, dependsOn: classes) {
-		classifier 'sources'
-		from sourceSets.main.allSource
-	}
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-	classifier 'javadoc'
-	from javadoc.destinationDir
-}
-
-artifacts {
-	archives javadocJar
-	archives sourcesJar
-}
-
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-bintray {
-	pom {
-		project {
-			packaging 'aar'
-			groupId publishedGroupId
-			artifactId appPackageName
-
-			// Add your description here
-			name appPackageName
-			description libraryDescription
-			url siteUrl
-
-			// Set your license
-			licenses {
-				license {
-					name licenseName
-					url licenseUrl
-				}
-			}
-			developers {
-				developer {
-					id developerId
-					name developerName
-					email developerEmail
-				}
-			}
-			scm {
-				connection gitUrl
-				developerConnection gitUrl
-				url siteUrl
-
-			}
-		}
-	}.writeTo("$buildDir/poms/pom-default.xml")
-
-	user = properties.getProperty("bintray.user")
-	key = properties.getProperty("bintray.apikey")
-
-	configurations = ['archives']
-	pkg {
-		repo = bintrayRepo
-		name = appPackageName
-		desc = libraryDescription
-		websiteUrl = siteUrl
-		vcsUrl = gitUrl
-		licenses = allLicenses
-		publish = true
-		publicDownloadNumbers = true
-		version {
-			desc = libraryDescription
-			gpg {
-				// optional GPG encryption. Default is false.
-				sign = false
-				//passphrase = properties.getProperty("bintray.gpg.password")
-			}
-		}
-	}
-}

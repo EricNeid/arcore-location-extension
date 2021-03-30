@@ -6,11 +6,16 @@ their project out as well.
 
 ## Gradle
 
-Check for the release pages for the latest version. If using gradle you can reference the
-library like this (it's on jcenter):
+Check for the release pages for the latest version.
 
 ```gradle
-implementation 'org.neidhardt:arcore-location-extension:x.x.x'
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.github.ericneid:simple-storage:0.8.0'
+}
 ```
 
 ## Quickstart
@@ -268,6 +273,6 @@ dependencies {
   // arcore
   implementation 'com.google.ar:core:1.16.0'
   implementation 'com.google.ar.sceneform.ux:sceneform-ux:1.15.0'
-  implementation 'org.neidhardt:arcore-location-extension:0.7.2'
+  implementation 'com.github.ericneid:arcore-location-extension:0.8.0'
 }
 ```
