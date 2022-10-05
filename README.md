@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.ericneid:simple-storage:0.8.0'
+    implementation 'com.github.ericneid:arcore-location-extension:0.8.0'
 }
 ```
 
