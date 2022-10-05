@@ -11,6 +11,9 @@ import kotlin.math.sin
 
 private const val LOCATION_UPDATE_THRESHOLD_M = 5
 
+/**
+ * [LocationArScene] is the primary class to add location aware functionalities to an [ArSceneView].
+ */
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 class LocationArScene(private val arSceneView: ArSceneView) {
 
@@ -72,6 +75,9 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 	 */
 	var maxRenderDistance = 25.0
 
+	/**
+	 * [startLocationScene] start rendering the scene. It should be called in onCreate.
+	 */
 	fun startLocationScene() {
 		arSceneView.scene.addOnUpdateListener {
 			arSceneView.arFrame?.let { onSceneUpdate(it) }
@@ -102,6 +108,10 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		}
 	}
 
+	/**
+	 * [addMarker] adds a new [LocationArMarker] to this scene.
+	 * @param marker to add
+	 */
 	fun addMarker(marker: LocationArMarker) {
 		if (locationMarkers.contains(marker)) {
 			Log.w(tag, "locationMarker already added to location scene")
@@ -111,6 +121,10 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		refreshMarker(marker)
 	}
 
+	/**
+	 * [removeMarker] removes an existing [LocationArMarker] from this scene.
+	 * @param marker to remove
+	 */
 	fun removeMarker(marker: LocationArMarker) {
 		if (!locationMarkers.contains(marker)) {
 			Log.w(tag, "locationMarker was not found in list markers")
@@ -121,6 +135,9 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 		renderedLocationMarkers.remove(marker)
 	}
 
+	/**
+	 * [clearMarkers] removes all [LocationArMarker] from this scene.
+	 */
 	fun clearMarkers() {
 		locationMarkers.forEach {
 			detachMarker(it)
@@ -134,6 +151,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 	 * If no location was set so far, this triggers [refreshSceneIfReady].
 	 * If the distance between the new location and the location of the last update is
 	 * larger than [locationUpdateThreshold], this triggers [refreshSceneIfReady].
+	 * @param newLocation to update to
 	 */
 	fun onLocationChanged(newLocation: GlobalPosition) {
 		val firstAvailableLocation = currentLocation == null
@@ -160,6 +178,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 	/**
 	 * [onBearingChanged] updates the current user bearing in the location scene.
 	 * If no bearing was set so far, this triggers [refreshSceneIfReady].
+	 * @param newBearing (in degrees) to update to
 	 */
 	fun onBearingChanged(newBearing: Float) {
 		val firstAvailableBearing = currentBearing == null

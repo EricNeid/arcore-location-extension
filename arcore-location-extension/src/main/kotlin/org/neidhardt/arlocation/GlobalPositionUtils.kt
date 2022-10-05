@@ -5,7 +5,11 @@ import org.gavaghan.geodesy.GeodeticCalculator
 import org.gavaghan.geodesy.GeodeticCurve
 import org.gavaghan.geodesy.GlobalPosition as Pos
 
-object GlobalPositionUtils {
+/**
+ * [GlobalPositionUtils] contains utility functions for calculations with real-world coordinates.
+ * It uses the GeodeticCalculator library for calculations.
+ */
+internal object GlobalPositionUtils {
 
 	private val geoCalc = GeodeticCalculator()
 	private val reference = Ellipsoid.WGS84

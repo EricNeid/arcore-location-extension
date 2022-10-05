@@ -3,10 +3,13 @@ package org.neidhardt.arlocation
 import kotlin.math.cos
 import kotlin.math.sin
 
+/**
+ * [ArUtils] contains utility functions for calculations relevant to the AR scene.
+ */
 object ArUtils {
 
 	/**
-	 * [linearScaleFactor] returns the scale factor of ar object, depending on the distance.
+	 * Calculates the scale factor of ar object, depending on the distance.
 	 * @param distance distance to marker
 	 * @return scale factor
 	 */
@@ -15,7 +18,7 @@ object ArUtils {
 	}
 
 	/**
-	 * [linearScaleFactor] returns the scale factor of ar object, depending on the distance.
+	 * Calculates the scale factor of ar object, depending on the distance.
 	 * @param distance distance to marker
 	 * @param minScale minimum scale at maximum distance
 	 * @param maxDistance maximum distance to scale down (size is minScale beyond this distance)
@@ -46,7 +49,7 @@ object ArUtils {
 	}
 
 	/**
-	 * [calculateArPosition] returns the position of object in ar coordinates, relative to the given
+	 * Calculates the position of object in ar coordinates, relative to the given
 	 * reference position and bearing. To obtain the position relative to the origin of the ar scene,
 	 * the initial user's position and bearing should be used as a reference.
 	 * @return arPosition
@@ -70,7 +73,7 @@ object ArUtils {
 	}
 
 	/**
-	 * [calculateArPosition] returns the position of object in ar coordinates, relative to the current
+	 * Calculates returns the position of object in ar coordinates, relative to the current
 	 * camera (defined by bearing and distance). This position must be composed with the current camera
 	 * position to obtain coordinates relative to the origin of the ar scene.
 	 * @return arPosition

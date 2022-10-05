@@ -3,33 +3,30 @@ package org.neidhardt.arlocation
 import com.google.ar.sceneform.FrameTime
 import com.google.ar.sceneform.Node
 
+/**
+ * [LocationArMarker] represents a real-world marker that can be added to an [LocationArScene].
+ *
+ * @property globalPosition real-world position
+ * @property node actual node for ar scene
+ *
+ * @property height is the altitude of the object, based on camera height
+ * @property onUpdate function called by [LocationArScene] on each frame and can be used to update marker properties before it is being rendered
+ * @property onlyRenderWhenWithin sets the maximum range in which markers are still rendered
+ * @property placementType indicates how this maker should be placed.
+ *   Use [PlacementType.STATIC] for maker in close proximity (< 20m) and [PlacementType.DYNAMIC] for makers far away. The systems tries to emulate the actual distance.
+ */
 class LocationArMarker(
 		var globalPosition: GlobalPosition,
 		var node: Node
 ) {
 	var anchorNode: LocationArNode? = null
 
-	/**
-	 * [onUpdate] is called on each frame an can be used to update marker
-	 * properties before it is being rendered.
-	 */
 	var onUpdate: ((frameTime: FrameTime, locationNode: LocationArNode) -> Unit)? = null
 
-	/**
-	 * [height] is the altitude of the object, based on camera height.
-	 */
 	var height = 0f
 
-	/**
-	 * [onlyRenderWhenWithin] determines the maximum range in which markers are still rendered.
-	 */
 	var onlyRenderWhenWithin = Int.MAX_VALUE
 
-	/**
-	 * [placementType] indicates how this maker should be placed.
-	 * Use [PlacementType.STATIC] for maker in close proximity (< 20m).
-	 * User [PlacementType.DYNAMIC] for makers far away. The systems tries to emulate the actual distance.
-	 */
 	var placementType = PlacementType.STATIC
 
 	var scalingMode = ScalingMode.DEFAULT
