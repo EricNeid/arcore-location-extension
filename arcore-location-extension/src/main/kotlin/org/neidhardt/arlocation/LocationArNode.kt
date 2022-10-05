@@ -7,11 +7,10 @@ import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.Vector3
 import kotlin.math.sqrt
 
-@Suppress("MemberVisibilityCanBePrivate")
-class LocationArNode(
+internal class LocationArNode(
 		anchor: Anchor,
-		val locationMarker: LocationArMarker,
-		val locationScene: LocationArScene
+		private val locationMarker: LocationArMarker,
+		private val locationScene: LocationArScene
 ) : AnchorNode(anchor) {
 
 	override fun onUpdate(frameTime: FrameTime) {
@@ -25,7 +24,7 @@ class LocationArNode(
 			rotate()
 		}
 
-		locationMarker.onUpdate?.invoke(frameTime, this)
+		locationMarker.onUpdate?.invoke(frameTime, locationMarker)
 	}
 
 	private fun scale() {
@@ -49,7 +48,7 @@ class LocationArNode(
 			LocationArMarker.ScalingMode.CUSTOM -> {
 				getScaleCustom(
 						direction,
-						this,
+						locationMarker,
 						locationScene.currentLocation,
 						locationMarker.globalPosition
 				).toFloat()
@@ -71,17 +70,17 @@ class LocationArNode(
 		node.worldRotation = lookRotation
 	}
 
-	companion object {
+	internal companion object {
 
 		internal fun getScaleCustom(
 				direction: Vector3,
-				locationArNode: LocationArNode,
+				locationMarker: LocationArMarker,
 				src: GlobalPosition?,
 				dst: GlobalPosition?
 		): Double {
 			val scaleFixedSize = getScaleFixedSize(direction)
 
-			val scaleFunction = locationArNode.locationMarker.customScale
+			val scaleFunction = locationMarker.customScale
 					?: throw UnsupportedOperationException("Using CUSTOM_SCALE requires settings customScale function")
 
 			val userLocation = src ?: return scaleFixedSize
@@ -92,7 +91,7 @@ class LocationArNode(
 					markerLocation
 			).ellipsoidalDistance
 
-			val scaleFactor = scaleFunction.invoke(distance, locationArNode)
+			val scaleFactor = scaleFunction.invoke(distance, locationMarker)
 			return scaleFixedSize * scaleFactor
 		}
 

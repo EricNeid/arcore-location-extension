@@ -14,12 +14,13 @@ import com.google.ar.sceneform.Node
  * @property onlyRenderWhenWithin sets the maximum range in which markers are still rendered
  * @property placementType indicates how this maker should be placed.
  *   Use [PlacementType.STATIC] for maker in close proximity (< 20m) and [PlacementType.DYNAMIC] for makers far away. The systems tries to emulate the actual distance.
+ * @property customScale should be set, when using [ScalingMode.CUSTOM].
  */
 class LocationArMarker(
 		var globalPosition: GlobalPosition,
 		var node: Node
 ) {
-	var onUpdate: ((frameTime: FrameTime, locationNode: LocationArNode) -> Unit)? = null
+	var onUpdate: ((frameTime: FrameTime, locationArMarker: LocationArMarker) -> Unit)? = null
 
 	var height = 0f
 
@@ -31,10 +32,7 @@ class LocationArMarker(
 
 	var rotationMode = RotationMode.DEFAULT
 
-	/**
-	 * [customScale] should be set, when [ScalingMode.CUSTOM] is used to define the scaling behaviour.
-	 */
-	var customScale: ((distance: Double, locationNode: LocationArNode) -> Double)? = null
+	var customScale: ((distance: Double, locationArMarker: LocationArMarker) -> Double)? = null
 
 	/**
 	 * [PlacementType] indicates how this maker should be placed.

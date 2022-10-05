@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## Unreleased
 ## Changed (Breaking)
 * Moved LocationArNode to LocationArScene
+* Changed visibility of LocationArNode to internal
 
 ## v0.8.0 - 2021-03-30
 * First release to maven central
