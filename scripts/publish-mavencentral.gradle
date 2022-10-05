@@ -1,9 +1,16 @@
-apply plugin: 'maven-publish'
-apply plugin: 'signing'
-apply plugin: 'org.jetbrains.dokka'
+apply plugin: "maven-publish"
+apply plugin: "signing"
+apply plugin: "org.jetbrains.dokka"
+
+def projectDescription = "This library provides utilities for ARCore to place ar markers on geo locations. It is based on the great work of https://github.com/appoly/ARCore-Location so be sure to check their project out as well."
+def githubUrl = "https://github.com/EricNeid/arcore-location-extension"
+
+def scmConnection = "scm:git:github.com/EricNeid/arcore-location-extension.git"
+def scmDeveloperConnection = "scm:git:ssh://github.com/EricNeid/arcore-location-extension.git"
+def scmUrl = "https://github.com/EricNeid/arcore-location-extension/tree/master"
 
 task androidSourcesJar(type: Jar) {
-    archiveClassifier.set('sources')
+    archiveClassifier.set("sources")
     if (project.plugins.findPlugin("com.android.library")) {
         // For Android libraries
         from android.sourceSets.main.java.srcDirs
@@ -22,7 +29,7 @@ tasks.withType(dokkaHtmlPartial.getClass()).configureEach {
 }
 
 task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
-    archiveClassifier.set('javadoc')
+    archiveClassifier.set("javadoc")
     from dokkaJavadoc.outputDirectory
 }
 
@@ -34,14 +41,14 @@ artifacts {
 group = PUBLISH_GROUP_ID
 version = PUBLISH_VERSION
 
-ext["signing.keyId"] = ''
-ext["signing.password"] = ''
-ext["signing.secretKeyRingFile"] = ''
-ext["ossrhUsername"] = ''
-ext["ossrhPassword"] = ''
-ext["sonatypeStagingProfileId"] = ''
+ext["signing.keyId"] = ""
+ext["signing.password"] = ""
+ext["signing.secretKeyRingFile"] = ""
+ext["ossrhUsername"] = ""
+ext["ossrhPassword"] = ""
+ext["sonatypeStagingProfileId"] = ""
 
-File secretPropsFile = project.rootProject.file('local.properties')
+File secretPropsFile = project.rootProject.file("local.properties")
 if (secretPropsFile.exists()) {
     Properties p = new Properties()
     p.load(new FileInputStream(secretPropsFile))
@@ -49,19 +56,19 @@ if (secretPropsFile.exists()) {
         ext[name] = value
     }
 } else {
-    ext["signing.keyId"] = System.getenv('SIGNING_KEY_ID')
-    ext["signing.password"] = System.getenv('SIGNING_PASSWORD')
-    ext["signing.secretKeyRingFile"] = System.getenv('SIGNING_SECRET_KEY_RING_FILE')
-    ext["ossrhUsername"] = System.getenv('OSSRH_USERNAME')
-    ext["ossrhPassword"] = System.getenv('OSSRH_PASSWORD')
-    ext["sonatypeStagingProfileId"] = System.getenv('SONATYPE_STAGING_PROFILE_ID')
+    ext["signing.keyId"] = System.getenv("SIGNING_KEY_ID")
+    ext["signing.password"] = System.getenv("SIGNING_PASSWORD")
+    ext["signing.secretKeyRingFile"] = System.getenv("SIGNING_SECRET_KEY_RING_FILE")
+    ext["ossrhUsername"] = System.getenv("OSSRH_USERNAME")
+    ext["ossrhPassword"] = System.getenv("OSSRH_PASSWORD")
+    ext["sonatypeStagingProfileId"] = System.getenv("SONATYPE_STAGING_PROFILE_ID")
 }
 
 publishing {
     publications {
         release(MavenPublication) {
             // The coordinates of the library, being set from variables that
-            // we'll set up later
+            // we"ll set up later
             groupId PUBLISH_GROUP_ID
             artifactId PUBLISH_ARTIFACT_ID
             version PUBLISH_VERSION
@@ -77,38 +84,38 @@ publishing {
             // Mostly self-explanatory metadata
             pom {
                 name = PUBLISH_ARTIFACT_ID
-                description = 'Helper to construct a standard Android dialog, containing a viewager to display a list of messages.'
-                url = 'https://github.com/EricNeid/viewpager-dialog'
+                description = projectDescription
+                url = githubUrl
                 licenses {
                     license {
-                        name = 'MIT License'
-                        url = 'https://opensource.org/licenses/MIT'
+                        name = "MIT License"
+                        url = "https://opensource.org/licenses/MIT"
                     }
                 }
                 developers {
                     developer {
-                        id = 'EricNeid'
-                        name = 'Eric Neidhardt'
-                        email = 'eric.neidhardt@gmail.com'
+                        id = "EricNeid"
+                        name = "Eric Neidhardt"
+                        email = "eric.neidhardt@gmail.com"
                     }
                     // Add all other devs here...
                 }
-                // Version control info - if you're using GitHub, follow the format as seen here
+                // Version control info - if you"re using GitHub, follow the format as seen here
                 scm {
-                    connection = 'scm:git:github.com/ericneid/viewpager-dialog.git'
-                    developerConnection = 'scm:git:ssh://github.com/ricneid/viewpager-dialog.git'
-                    url = 'https://github.com/ericneid/viewpager-dialog/tree/master'
+                    connection = scmConnection
+                    developerConnection = scmDeveloperConnection
+                    url = scmUrl
                 }
                 // A slightly hacky fix so that your POM will include any transitive dependencies
                 // that your library builds upon
                 withXml {
-                    def dependenciesNode = asNode().appendNode('dependencies')
+                    def dependenciesNode = asNode().appendNode("dependencies")
                     project.configurations.implementation.allDependencies.each {
                         if (it.group != null && it.name != null && it.version != null) {
-                            def dependencyNode = dependenciesNode.appendNode('dependency')
-                            dependencyNode.appendNode('groupId', it.group)
-                            dependencyNode.appendNode('artifactId', it.name)
-                            dependencyNode.appendNode('version', it.version)
+                            def dependencyNode = dependenciesNode.appendNode("dependency")
+                            dependencyNode.appendNode("groupId", it.group)
+                            dependencyNode.appendNode("artifactId", it.name)
+                            dependencyNode.appendNode("version", it.version)
                         }
                     }
                 }
@@ -119,9 +126,9 @@ publishing {
     repositories {
         maven {
             // This is an arbitrary name, you may also use "mavencentral" or
-            // any other name that's descriptive for you
+            // any other name that"s descriptive for you
             name = "sonatype"
-            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
             credentials {
                 username ossrhUsername
                 password ossrhPassword
@@ -132,8 +139,8 @@ publishing {
 
 // automatically close staged release
 // requires the following plugin in root:build.gradle
-//     apply plugin: 'io.codearte.nexus-staging'
-//     classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0'
+//     apply plugin: "io.codearte.nexus-staging"
+//     classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0"
 nexusStaging {
     packageGroup = PUBLISH_GROUP_ID
     stagingProfileId = sonatypeStagingProfileId
