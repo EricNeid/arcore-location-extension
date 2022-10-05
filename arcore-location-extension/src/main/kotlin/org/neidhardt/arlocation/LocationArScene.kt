@@ -21,6 +21,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 
 	private val locationMarkers = ArrayList<LocationArMarker>()
 	private val renderedLocationMarkers = ArrayList<LocationArMarker>()
+	private val anchorNodes = HashMap<LocationArMarker,LocationArNode>()
 
 	/**
 	 * [locationUpdateThreshold] represents the minimum distance between 2 calls of [onLocationChanged]
@@ -316,11 +317,11 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 	}
 
 	private fun detachMarker(marker: LocationArMarker) {
-		marker.anchorNode?.apply {
+		anchorNodes[marker]?.apply {
 			anchor?.detach()
 			isEnabled = false
 		}
-		marker.anchorNode = null
+		anchorNodes.remove(marker)
 	}
 
 	private fun attachStaticMarker(
@@ -356,7 +357,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 			), floatArrayOf(0f, 0f, 0f, 0f) )
 		)
 
-		marker.anchorNode = LocationArNode(newAnchor, marker, this).apply {
+		anchorNodes[marker] = LocationArNode(newAnchor, marker, this).apply {
 			setParent(arSceneView.scene)
 			addChild(marker.node)
 		}
@@ -401,7 +402,7 @@ class LocationArScene(private val arSceneView: ArSceneView) {
 						.extractTranslation()
 		)
 
-		marker.anchorNode = LocationArNode(newAnchor, marker, this).apply {
+		anchorNodes[marker] = LocationArNode(newAnchor, marker, this).apply {
 			setParent(arSceneView.scene)
 			addChild(marker.node)
 		}

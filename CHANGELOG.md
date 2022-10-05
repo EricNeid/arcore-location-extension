@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+## Changed (Breaking)
+* Moved LocationArNode to LocationArScene
+
 ## v0.8.0 - 2021-03-30
 * First release to maven central
 * groupId has changed from org.neidhardt to com.github.ericneid

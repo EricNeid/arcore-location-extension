@@ -19,8 +19,6 @@ class LocationArMarker(
 		var globalPosition: GlobalPosition,
 		var node: Node
 ) {
-	var anchorNode: LocationArNode? = null
-
 	var onUpdate: ((frameTime: FrameTime, locationNode: LocationArNode) -> Unit)? = null
 
 	var height = 0f
